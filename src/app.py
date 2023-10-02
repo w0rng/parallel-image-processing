@@ -11,12 +11,11 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Что-то для обработки картинок")
 
         image_picker_layout = QVBoxLayout()
-        self.image = QPixmap()
+        self.image_path = ''
         self.image_picker_button = QPushButton('Выбрать изображение')
-        self.image_picker_button.clicked.connect()
+        self.image_picker_button.clicked.connect(self.file_picker_button_clicked)
 
         self.label = QLabel('Картинка')
-        self.label.setPixmap(self.image)
 
         image_picker_layout.addWidget(self.image_picker_button)
         image_picker_layout.addWidget(self.label)
@@ -41,10 +40,11 @@ class MainWindow(QMainWindow):
 
         self.setCentralWidget(container)
 
+    def file_picker_button_clicked(self):
+        self.image_path = QFileDialog.getOpenFileUrl()[0].path()
+        self.label.setPixmap(QPixmap)
 
-
-
-app = QApplication(sys.argv)
+app = QApplication([])
 
 window = MainWindow()
 window.show()
