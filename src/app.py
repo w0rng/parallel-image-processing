@@ -1,7 +1,8 @@
 import sys
 
 from PyQt6.QtGui import QPixmap
-from PyQt6.QtWidgets import QApplication, QMainWindow, QRadioButton, QWidget, QHBoxLayout, QLabel
+from PyQt6.QtWidgets import QApplication, QMainWindow, QRadioButton, QWidget, QHBoxLayout, QLabel, QFileDialog, \
+    QVBoxLayout, QPushButton
 
 
 class MainWindow(QMainWindow):
@@ -9,15 +10,22 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("Что-то для обработки картинок")
 
-        self.image = QPixmap("./assets/example.jpeg")
+        image_picker_layout = QVBoxLayout()
+        self.image = QPixmap()
+        self.image_picker_button = QPushButton('Выбрать изображение')
+        self.image_picker_button.clicked.connect()
 
         self.label = QLabel('Картинка')
         self.label.setPixmap(self.image)
+
+        image_picker_layout.addWidget(self.image_picker_button)
+        image_picker_layout.addWidget(self.label)
 
         self.rgb_button = QRadioButton('RGB')
         self.hls_button = QRadioButton('HLS')
         self.yuv_button = QRadioButton('YCbCr')
         self.rgb_button.setChecked(True)
+
 
         color_radio_buttons = QHBoxLayout()
         color_radio_buttons.addWidget(self.rgb_button)
@@ -25,13 +33,15 @@ class MainWindow(QMainWindow):
         color_radio_buttons.addWidget(self.yuv_button)
 
         layout = QHBoxLayout()
-        layout.addWidget(self.label)
+        layout.addLayout(image_picker_layout)
         layout.addLayout(color_radio_buttons)
 
         container = QWidget()
         container.setLayout(layout)
 
         self.setCentralWidget(container)
+
+
 
 
 app = QApplication(sys.argv)
