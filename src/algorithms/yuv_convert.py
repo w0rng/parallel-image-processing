@@ -8,3 +8,6 @@ def to_yuv(r, g, b) -> tuple[int, int, int]:
 
 def row_to_yuv(row: list[tuple[int, int, int]]) -> list[tuple[int, int, int]]:
     return list(map(lambda pixel: to_yuv(*pixel), row))
+
+def rgb_to_yuv(pixels: list[list[tuple[int, int, int]]]) -> list[list[tuple[int, int, int]]]:
+    return list(map(row_to_yuv, pixels))

@@ -1,8 +1,7 @@
-import sys
+from PyQt6.QtWidgets import QApplication, QMainWindow, QRadioButton, QWidget, QHBoxLayout, QPushButton, QVBoxLayout
 
-from PyQt6.QtGui import QPixmap
-from PyQt6.QtWidgets import QApplication, QMainWindow, QRadioButton, QWidget, QHBoxLayout, QLabel, QFileDialog, \
-    QVBoxLayout, QPushButton
+from algorithms.yuv_convert import row_to_yuv, rgb_to_yuv
+from image import Image
 
 
 class MainWindow(QMainWindow):
@@ -10,43 +9,49 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("Что-то для обработки картинок")
 
-        image_picker_layout = QVBoxLayout()
-        self.image_path = ''
-        self.image_picker_button = QPushButton('Выбрать изображение')
-        self.image_picker_button.clicked.connect(self.file_picker_button_clicked)
-
-        self.label = QLabel('Картинка')
-
-        image_picker_layout.addWidget(self.image_picker_button)
-        image_picker_layout.addWidget(self.label)
+        self.current_image = Image.load('./assets/example.jpeg')
 
         self.rgb_button = QRadioButton('RGB')
         self.hls_button = QRadioButton('HLS')
-        self.yuv_button = QRadioButton('YCbCr')
+        self.yuv_button = QRadioButton('YUV')
+
         self.rgb_button.setChecked(True)
+        self.rgb_button.clicked.connect(self.rgb_button_clicked)
+        self.yuv_button.clicked.connect(self.yuv_button_clicked)
 
+        color_models_layout = QHBoxLayout()
+        color_models_layout.addWidget(self.rgb_button)
+        color_models_layout.addWidget(self.hls_button)
+        color_models_layout.addWidget(self.yuv_button)
 
-        color_radio_buttons = QHBoxLayout()
-        color_radio_buttons.addWidget(self.rgb_button)
-        color_radio_buttons.addWidget(self.hls_button)
-        color_radio_buttons.addWidget(self.yuv_button)
+        self.show_image_button = QPushButton('Показать картинку')
+        self.show_image_button.clicked.connect(self.show_button_clicked)
 
-        layout = QHBoxLayout()
-        layout.addLayout(image_picker_layout)
-        layout.addLayout(color_radio_buttons)
+        layout = QVBoxLayout()
+        layout.addLayout(color_models_layout)
+        layout.addWidget(self.show_image_button)
 
         container = QWidget()
         container.setLayout(layout)
 
         self.setCentralWidget(container)
 
-    def file_picker_button_clicked(self):
-        self.image_path = QFileDialog.getOpenFileUrl()[0].path()
-        self.label.setPixmap(QPixmap)
+    def rgb_button_clicked(self):
+        self.current_image = Image.load('./assets/example.jpeg')
 
-app = QApplication([])
+    def yuv_button_clicked(self):
+        image = Image.load("assets/example.jpeg")
+        image = Image(rgb_to_yuv(image.pixels))
+        self.current_image = image
 
-window = MainWindow()
-window.show()
+    def show_button_clicked(self):
+        self.current_image.show()
 
-app.exec()
+
+if __name__ == '__main__':
+    app = QApplication([])
+
+    window = MainWindow()
+    window.show()
+
+    app.exec()
