@@ -1,29 +1,18 @@
-def show_pixel_color(r, g, b, color: int) -> tuple[int, int, int]:
-    """Отбрасывает все каналы, кроме указанного"""
-    if color == 0:
-        return r, 0, 0
-    elif color == 1:
-        return 0, g, 0
-    elif color == 2:
-        return 0, 0, b
-    else:
-        raise ValueError("Неверный номер канала")
+def pixel_color(ch1, ch2, ch3, select_chans: list[int]) -> tuple[int, int, int]:
+    return (
+        ch1 if 0 in select_chans else 0,
+        ch2 if 1 in select_chans else 0,
+        ch3 if 2 in select_chans else 0,
+    )
 
-
-def row_show_pixel_color(
-    row: list[tuple[int, int, int]], color: int
+def row_pixel_color(
+    row: list[tuple[int, int, int]], select_chans: list[int]
 ) -> list[tuple[int, int, int]]:
     """Отбрасывает все каналы, кроме указанного"""
-    return list(map(lambda pixel: show_pixel_color(*pixel, color), row))
+    return list(map(lambda pixel: pixel_color(*pixel, select_chans), row))
 
-
-def red_channel(row: list[tuple[int, int, int]]) -> list[tuple[int, int, int]]:
-    return row_show_pixel_color(row, 0)
-
-
-def green_channel(row: list[tuple[int, int, int]]) -> list[tuple[int, int, int]]:
-    return row_show_pixel_color(row, 1)
-
-
-def blue_channel(row: list[tuple[int, int, int]]) -> list[tuple[int, int, int]]:
-    return row_show_pixel_color(row, 2)
+def matrix_pixel_color(
+    matrix: list[list[tuple[int, int, int]]],
+    select_chans: list[int]
+) -> list[list[tuple[int, int, int]]]:
+    return list(map(lambda row: row_pixel_color(row, select_chans), matrix))
