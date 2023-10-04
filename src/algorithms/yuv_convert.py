@@ -1,4 +1,4 @@
-from colorsys import rgb_to_hls
+from copy import deepcopy
 
 def to_hls(r, g, b):
     r /= 255
@@ -58,3 +58,18 @@ def row_hls_as_rgb(row: list[tuple[int, int, int]]) -> list[tuple[int, int, int]
 
 def hls_as_rbg(pixels: list[list[tuple[float, float, float]]]) -> list[list[tuple[int, int, int]]]:
     return list(map(row_hls_as_rgb, pixels))
+
+def change_yuv_brightnes_and_contrast(
+    pixels: list[list[tuple[int, int, int]]],
+    brightnes: float,
+    contrast: float
+) -> list[list[tuple[int, int, int]]]:
+    res = deepcopy(pixels)
+    for y, row in enumerate(res):
+        for x, pixel in enumerate(row):
+            res[y][x] = (
+                int(pixel[0] * contrast + brightnes),
+                pixel[1],
+                pixel[2],
+            )
+    return res
