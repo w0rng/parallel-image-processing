@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QApplication, QMainWindow, QRadioButton, QWidget, QHBoxLayout, QPushButton, QVBoxLayout, \
-    QBoxLayout, QLabel, QCheckBox
+    QBoxLayout, QLabel, QCheckBox, QSlider
 
-from algorithms.yuv_convert import rgb_to_yuv, rgb_to_hls, hls_as_rbg
+from algorithms.yuv_convert import rgb_to_yuv, rgb_to_hls, hls_as_rbg, change_yuv_brightnes_and_contrast
 from image import Image
 
 from algorithms.show_color_channel import matrix_pixel_color
@@ -15,6 +15,9 @@ class MainWindow(QMainWindow):
     task2_chan2: QCheckBox
     task2_chan3: QCheckBox
 
+    task4_slider_brightnes: QSlider
+    task4_slider_contrast: QSlider
+
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Что-то для обработки картинок")
@@ -25,6 +28,7 @@ class MainWindow(QMainWindow):
         layout.addLayout(self._make_task1_layout())
         layout.addLayout(self._make_task2_layout())
         layout.addLayout(self._make_task3_layout())
+        layout.addLayout(self._make_task4_layout())
 
         container = QWidget()
         container.setLayout(layout)
@@ -117,6 +121,37 @@ class MainWindow(QMainWindow):
 
     def show_task3_button_clicked(self):
         show_histogram(self.current_image)
+
+    # -- task 4
+    def _make_task4_layout(self) -> QBoxLayout:
+        """построение гистограммы для выбранного канала заданной цветовой модели"""
+        self.task4_slider_brightnes = QSlider()
+        self.task4_slider_contrast = QSlider()
+        self.task4_slider_brightnes.setRange(-100, 100)
+        self.task4_slider_contrast.setRange(0, 100)
+
+        layout = QHBoxLayout()
+        layout.addWidget(QLabel("Задание 4"))
+        layout.addWidget(QLabel("Яркость"))
+        layout.addWidget(self.task4_slider_brightnes)
+        layout.addWidget(QLabel("Контраст"))
+        layout.addWidget(self.task4_slider_contrast)
+        layout.addWidget(self._make_show_image_button(self.show_task4_button_clicked))
+
+        return layout
+
+    def show_task4_button_clicked(self):
+        print(self.task4_slider_brightnes.value())
+        print(self.task4_slider_contrast.value())
+
+        pixels = self.current_image.pixels
+        new_pixels = change_yuv_brightnes_and_contrast(
+            pixels,
+            self.task4_slider_brightnes.value(),
+            self.task4_slider_contrast.value() / 50,
+        )
+        Image(new_pixels).show("YCbCr")
+
 
 
 if __name__ == '__main__':
