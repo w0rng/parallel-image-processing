@@ -1,10 +1,11 @@
 from PyQt6.QtWidgets import QApplication, QMainWindow, QRadioButton, QWidget, QHBoxLayout, QPushButton, QVBoxLayout, \
     QBoxLayout, QLabel, QCheckBox
 
-from algorithms.yuv_convert import row_to_yuv, rgb_to_yuv
+from algorithms.yuv_convert import rgb_to_yuv, rgb_to_hls, hls_as_rbg
 from image import Image
 
 from algorithms.show_color_channel import matrix_pixel_color
+from algorithms.histogram import show_histogram
 
 
 class MainWindow(QMainWindow):
@@ -23,6 +24,7 @@ class MainWindow(QMainWindow):
         layout = QVBoxLayout()
         layout.addLayout(self._make_task1_layout())
         layout.addLayout(self._make_task2_layout())
+        layout.addLayout(self._make_task3_layout())
 
         container = QWidget()
         container.setLayout(layout)
@@ -38,6 +40,7 @@ class MainWindow(QMainWindow):
 
         rgb_button.setChecked(True)
         rgb_button.clicked.connect(self.rgb_button_clicked)
+        hls_button.clicked.connect(self.hls_button_clicked)
         yuv_button.clicked.connect(self.yuv_button_clicked)
 
         color_models_layout = QHBoxLayout()
@@ -49,8 +52,8 @@ class MainWindow(QMainWindow):
 
         return color_models_layout
 
-    def _make_show_image_button(self, action) -> QPushButton:
-        show_image_button = QPushButton('Показать картинку')
+    def _make_show_image_button(self, action, title: str = "Показать картинку") -> QPushButton:
+        show_image_button = QPushButton(title)
         show_image_button.clicked.connect(action)
         return show_image_button
 
@@ -60,6 +63,14 @@ class MainWindow(QMainWindow):
     def yuv_button_clicked(self):
         image = Image.load("assets/example.jpeg")
         image = Image(rgb_to_yuv(image.pixels))
+        self.current_image = image
+
+    def hls_button_clicked(self):
+        image = Image.load("assets/example.jpeg")
+        hls_pixels = rgb_to_hls(image.pixels)
+        print(hls_pixels)
+        hls_as_rbg_pixels = hls_as_rbg(hls_pixels)
+        image = Image(hls_as_rbg_pixels)
         self.current_image = image
 
     def show_button_clicked(self):
@@ -94,6 +105,18 @@ class MainWindow(QMainWindow):
 
         new_pixels = matrix_pixel_color(self.current_image.pixels, chans)
         Image(new_pixels).show()
+
+    # -- task 3
+    def _make_task3_layout(self) -> QBoxLayout:
+        """построение гистограммы для выбранного канала заданной цветовой модели"""
+        layout = QHBoxLayout()
+        layout.addWidget(QLabel("Задание 3"))
+        layout.addWidget(self._make_show_image_button(self.show_task3_button_clicked, "Показать гистограмму"))
+
+        return layout
+
+    def show_task3_button_clicked(self):
+        show_histogram(self.current_image)
 
 
 if __name__ == '__main__':
