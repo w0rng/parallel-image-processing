@@ -1,11 +1,7 @@
-from PyQt6.QtWidgets import QApplication, QMainWindow, QRadioButton, QWidget, QHBoxLayout, QPushButton, QVBoxLayout, \
-    QBoxLayout, QLabel, QCheckBox, QSlider
+from PyQt6.QtWidgets import *
 
-from algorithms.yuv_convert import rgb_to_yuv, rgb_to_hls, hls_as_rbg, change_yuv_brightnes_and_contrast
-from image import Image
-
-from algorithms.show_color_channel import matrix_pixel_color
 from algorithms.histogram import show_histogram
+from image import Image
 
 
 class MainWindow(QMainWindow):
@@ -22,7 +18,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("Что-то для обработки картинок")
 
-        self.current_image = Image.load('./assets/example.jpeg')
+        self.current_image = Image.load("./assets/example.jpeg")
 
         layout = QVBoxLayout()
         layout.addLayout(self._make_task1_layout())
@@ -38,9 +34,9 @@ class MainWindow(QMainWindow):
     # -- task 1
     def _make_task1_layout(self) -> QBoxLayout:
         """преобразование одной цветовой модели в другую (RGB, HLS или HSV, YUV[YCbCr])"""
-        rgb_button = QRadioButton('RGB')
-        hls_button = QRadioButton('HLS')
-        yuv_button = QRadioButton('YUV')
+        rgb_button = QRadioButton("RGB")
+        hls_button = QRadioButton("HLS")
+        yuv_button = QRadioButton("YUV")
 
         rgb_button.setChecked(True)
         rgb_button.clicked.connect(self.rgb_button_clicked)
@@ -52,30 +48,29 @@ class MainWindow(QMainWindow):
         color_models_layout.addWidget(rgb_button)
         color_models_layout.addWidget(hls_button)
         color_models_layout.addWidget(yuv_button)
-        color_models_layout.addWidget(self._make_show_image_button(self.show_button_clicked))
+        color_models_layout.addWidget(
+            self._make_show_image_button(self.show_button_clicked)
+        )
 
         return color_models_layout
 
-    def _make_show_image_button(self, action, title: str = "Показать картинку") -> QPushButton:
+    def _make_show_image_button(
+        self, action, title: str = "Показать картинку"
+    ) -> QPushButton:
         show_image_button = QPushButton(title)
         show_image_button.clicked.connect(action)
         return show_image_button
 
     def rgb_button_clicked(self):
-        self.current_image = Image.load('./assets/example.jpeg')
+        self.current_image = Image.load("./assets/example.jpeg")
 
     def yuv_button_clicked(self):
         image = Image.load("assets/example.jpeg")
-        image = Image(rgb_to_yuv(image.pixels))
-        self.current_image = image
+        self.current_image = image.to_yuv()
 
     def hls_button_clicked(self):
         image = Image.load("assets/example.jpeg")
-        hls_pixels = rgb_to_hls(image.pixels)
-        print(hls_pixels)
-        hls_as_rbg_pixels = hls_as_rbg(hls_pixels)
-        image = Image(hls_as_rbg_pixels)
-        self.current_image = image
+        self.current_image = image.to_hls()
 
     def show_button_clicked(self):
         self.current_image.show()
@@ -107,15 +102,19 @@ class MainWindow(QMainWindow):
         if self.task2_chan3.isChecked():
             chans.append(2)
 
-        new_pixels = matrix_pixel_color(self.current_image.pixels, chans)
-        Image(new_pixels).show()
+        image = self.current_image.show_chanenls(chans)
+        image.show(convert_to_rgb=True)
 
     # -- task 3
     def _make_task3_layout(self) -> QBoxLayout:
         """построение гистограммы для выбранного канала заданной цветовой модели"""
         layout = QHBoxLayout()
         layout.addWidget(QLabel("Задание 3"))
-        layout.addWidget(self._make_show_image_button(self.show_task3_button_clicked, "Показать гистограмму"))
+        layout.addWidget(
+            self._make_show_image_button(
+                self.show_task3_button_clicked, "Показать гистограмму"
+            )
+        )
 
         return layout
 
@@ -141,20 +140,15 @@ class MainWindow(QMainWindow):
         return layout
 
     def show_task4_button_clicked(self):
-        print(self.task4_slider_brightnes.value())
-        print(self.task4_slider_contrast.value())
-
-        pixels = self.current_image.pixels
-        new_pixels = change_yuv_brightnes_and_contrast(
-            pixels,
-            self.task4_slider_brightnes.value(),
-            self.task4_slider_contrast.value() / 50,
+        brightnes = self.task4_slider_brightnes.value()
+        contrast = self.task4_slider_contrast.value() / 50
+        image = self.current_image.change_yuv_brightnes_and_contrast(
+            brightnes, contrast
         )
-        Image(new_pixels).show("YCbCr")
+        image.show(convert_to_rgb=True)
 
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     app = QApplication([])
 
     window = MainWindow()
