@@ -1,18 +1,25 @@
-def pixel_color(ch1, ch2, ch3, select_chans: list[int]) -> tuple[int, int, int]:
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from image import Image, pixel
+
+
+def pixel_color(pixel: "pixel", select_chans: list[int]) -> "pixel":
     return (
-        ch1 if 0 in select_chans else 0,
-        ch2 if 1 in select_chans else 0,
-        ch3 if 2 in select_chans else 0,
+        pixel[0] if 0 in select_chans else 0,
+        pixel[1] if 1 in select_chans else 0,
+        pixel[2] if 2 in select_chans else 0,
     )
 
-def row_pixel_color(
-    row: list[tuple[int, int, int]], select_chans: list[int]
-) -> list[tuple[int, int, int]]:
-    """Отбрасывает все каналы, кроме указанного"""
-    return list(map(lambda pixel: pixel_color(*pixel, select_chans), row))
 
-def matrix_pixel_color(
-    matrix: list[list[tuple[int, int, int]]],
-    select_chans: list[int]
-) -> list[list[tuple[int, int, int]]]:
-    return list(map(lambda row: row_pixel_color(row, select_chans), matrix))
+def matrix_pixel_color(image: "Image", select_chans: list[int]) -> "Image":
+    from image import Image
+
+    pixels: list[list["pixel"]] = []
+    for row in image.pixels:
+        tmp_row = []
+        for pixel_ in row:
+            tmp_row.append(pixel_color(pixel_, select_chans))
+        pixels.append(tmp_row)
+
+    return Image(pixels=pixels, mode=image.mode)
