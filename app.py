@@ -1,7 +1,6 @@
-import sys
-
 from PyQt6.QtGui import QPixmap
-from PyQt6.QtWidgets import QApplication, QMainWindow, QRadioButton, QWidget, QHBoxLayout, QLabel
+from PyQt6.QtWidgets import (QApplication, QHBoxLayout, QLabel, QMainWindow,
+                             QRadioButton, QWidget)
 
 
 class MainWindow(QMainWindow):
@@ -11,12 +10,12 @@ class MainWindow(QMainWindow):
 
         self.image = QPixmap("./assets/example.jpeg")
 
-        self.label = QLabel('Картинка')
+        self.label = QLabel("Картинка")
         self.label.setPixmap(self.image)
 
-        self.rgb_button = QRadioButton('RGB')
-        self.hls_button = QRadioButton('HLS')
-        self.yuv_button = QRadioButton('YCbCr')
+        self.rgb_button = QRadioButton("RGB")
+        self.hls_button = QRadioButton("HLS")
+        self.yuv_button = QRadioButton("YCbCr")
         self.rgb_button.setChecked(True)
 
         color_radio_buttons = QHBoxLayout()

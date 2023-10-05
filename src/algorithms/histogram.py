@@ -13,9 +13,9 @@ def show_histogram(image: "Image") -> None:
     data3 = [pixel[2] for row in image.pixels for pixel in row]
 
     plt.figure(figsize=(8, 6))
-    plt.hist(data1, alpha=0.5, label="ch1", color="red")
-    plt.hist(data2, alpha=0.5, label="ch2", color="green")
-    plt.hist(data3, alpha=0.5, label="ch2", color="blue")
+    plt.hist(data1, alpha=0.5, label=f"Канал {image.mode[0]}", color="red")
+    plt.hist(data2, alpha=0.5, label=f"Канал {image.mode[1]}", color="green")
+    plt.hist(data3, alpha=0.5, label=f"Канал {image.mode[2]}", color="blue")
     plt.xlabel("Data", size=14)
     plt.ylabel("Count", size=14)
     plt.title("Разложение картинки по каналам")
