@@ -1,5 +1,6 @@
 from PyQt6.QtWidgets import *
 
+from algorithms.autolevels import rgb_autolevels
 from algorithms.histogram import show_histogram
 from image import Image
 
@@ -25,6 +26,8 @@ class MainWindow(QMainWindow):
         layout.addLayout(self._make_task2_layout())
         layout.addLayout(self._make_task3_layout())
         layout.addLayout(self._make_task4_layout())
+
+        layout.addLayout(self._make_taskJ_layout())
 
         container = QWidget()
         container.setLayout(layout)
@@ -146,6 +149,19 @@ class MainWindow(QMainWindow):
             brightnes, contrast
         )
         image.show(convert_to_rgb=True)
+
+    # -- task J
+    def _make_taskJ_layout(self) -> QBoxLayout:
+        layout = QHBoxLayout()
+        layout.addWidget(QLabel("Задание J"))
+        layout.addWidget(self._make_show_image_button(self.show_taskJ_button_clicked, "«Autolevels»"))
+        return layout
+
+    def show_taskJ_button_clicked(self):
+        image = self.current_image
+        # for _ in range(100):
+        image = rgb_autolevels(image)
+        image.show()
 
 
 if __name__ == "__main__":
