@@ -9,9 +9,9 @@ from image import Image
 class MainWindow(QMainWindow):
     current_image: Image
 
-    task2_chan1: QCheckBox
-    task2_chan2: QCheckBox
-    task2_chan3: QCheckBox
+    task2_chan1: QPushButton
+    task2_chan2: QPushButton
+    task2_chan3: QPushButton
 
     task4_slider_brightnes: QSlider
     task4_slider_contrast: QSlider
@@ -67,14 +67,14 @@ class MainWindow(QMainWindow):
         return show_image_button
 
     def rgb_button_clicked(self):
-        self.current_image = Image.load("./assets/example.jpeg")
+        self.current_image = Image.load("../assets/example.jpeg")
 
     def yuv_button_clicked(self):
-        image = Image.load("assets/example.jpeg")
+        image = Image.load("../assets/example.jpeg")
         self.current_image = image.to_yuv()
 
     def hls_button_clicked(self):
-        image = Image.load("assets/example.jpeg")
+        image = Image.load("../assets/example.jpeg")
         self.current_image = image.to_hls()
 
     def show_button_clicked(self):
@@ -85,29 +85,33 @@ class MainWindow(QMainWindow):
         """разложение представления изображения в выбранной цветовой модели
         на отдельные каналы с возможностью визуализации выбранного канала для заданной
         цветовой модели"""
-        self.task2_chan1 = QCheckBox("chan1")
-        self.task2_chan2 = QCheckBox("chan2")
-        self.task2_chan3 = QCheckBox("chan3")
+        self.task2_chan1 = QPushButton("chan1")
+        self.task2_chan2 = QPushButton("chan2")
+        self.task2_chan3 = QPushButton("chan3")
+
+        self.task2_chan1.clicked.connect(self.task_2_channel_1_clicked)
+        self.task2_chan2.clicked.connect(self.task_2_channel_2_clicked)
+        self.task2_chan3.clicked.connect(self.task_2_channel_3_clicked)
+
 
         layout = QHBoxLayout()
         layout.addWidget(QLabel("Задание 2"))
         layout.addWidget(self.task2_chan1)
         layout.addWidget(self.task2_chan2)
         layout.addWidget(self.task2_chan3)
-        layout.addWidget(self._make_show_image_button(self.show_task2_button_clicked))
 
         return layout
 
-    def show_task2_button_clicked(self):
-        chans: list[int] = []
-        if self.task2_chan1.isChecked():
-            chans.append(0)
-        if self.task2_chan2.isChecked():
-            chans.append(1)
-        if self.task2_chan3.isChecked():
-            chans.append(2)
+    def task_2_channel_1_clicked(self):
+        image = self.current_image.show_channel(0)
+        image.show(convert_to_rgb=True)
 
-        image = self.current_image.show_chanenls(chans)
+    def task_2_channel_2_clicked(self):
+        image = self.current_image.show_channel(1)
+        image.show(convert_to_rgb=True)
+
+    def task_2_channel_3_clicked(self):
+        image = self.current_image.show_channel(2)
         image.show(convert_to_rgb=True)
 
     # -- task 3
