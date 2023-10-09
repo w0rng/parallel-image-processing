@@ -157,6 +157,7 @@ class MainWindow(QMainWindow):
         layout = QHBoxLayout()
         layout.addWidget(QLabel("Задание J"))
         layout.addWidget(self._make_show_image_button(self.show_taskJ_button_clicked, "«Autolevels»"))
+
     def _make_taksB_layout(self) -> QBoxLayout:
         def tmp():
             self.current_image = equalization(self.current_image)
@@ -168,11 +169,15 @@ class MainWindow(QMainWindow):
         return layout
 
     def _make_taksE_layout(self) -> QBoxLayout:
+        slider = QSlider()
+
         def tmp():
-            sedate(self.current_image, 0.5).show()
+            gamma = (slider.value() + 1) / 20
+            sedate(self.current_image, gamma).show()
 
         layout = QHBoxLayout()
         layout.addWidget(QLabel("Задание E"))
+        layout.addWidget(slider)
         layout.addWidget(self._make_show_image_button(tmp, "Степенная коррекция"))
         return layout
 
