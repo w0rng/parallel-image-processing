@@ -39,7 +39,7 @@ def hls_pixel_channel(pixel: "pixel", chosen_channel: int) -> "pixel":
     elif chosen_channel == 1:
         return (0, pixel[1], 0)
     else:
-        return (0.5, 0.5, pixel[2])
+        return (0, 0.5, pixel[2])
 
 def yuv_pixel_channel(pixel: "pixel", chosen_channel: int) -> "pixel":
     if chosen_channel == 0:
