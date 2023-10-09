@@ -35,11 +35,11 @@ def rgb_pixel_channel(pixel: "pixel", chosen_channel: int) -> "pixel":
 
 def hls_pixel_channel(pixel: "pixel", chosen_channel: int) -> "pixel":
     if chosen_channel == 0:
-        return (pixel[0], 255, 255)
+        return (pixel[0] + 0.5, 255, 255)
     elif chosen_channel == 1:
         return (0, pixel[1], 0)
     else:
-        return (0, 0, pixel[2])
+        return (0.5, 0.5, pixel[2])
 
 def yuv_pixel_channel(pixel: "pixel", chosen_channel: int) -> "pixel":
     if chosen_channel == 0:
@@ -67,5 +67,6 @@ def image_channel_matrix(image: "Image", chosen_channel: int) -> "Image":
 
         pixels.append(tmp_row)
 
+    res_image = Image(pixels=pixels, mode=image.mode)
 
-    return Image(pixels=pixels, mode=image.mode)
+    return res_image
