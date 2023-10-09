@@ -1,7 +1,9 @@
 from PyQt6.QtWidgets import *
 
 from algorithms.autolevels import rgb_autolevels
+from algorithms.equalization import equalization
 from algorithms.histogram import show_histogram
+from algorithms.sedate import sedate
 from image import Image
 
 
@@ -155,6 +157,23 @@ class MainWindow(QMainWindow):
         layout = QHBoxLayout()
         layout.addWidget(QLabel("Задание J"))
         layout.addWidget(self._make_show_image_button(self.show_taskJ_button_clicked, "«Autolevels»"))
+    def _make_taksB_layout(self) -> QBoxLayout:
+        def tmp():
+            self.current_image = equalization(self.current_image)
+            self.current_image.show()
+
+        layout = QHBoxLayout()
+        layout.addWidget(QLabel("Задание B"))
+        layout.addWidget(self._make_show_image_button(tmp, "Нормализация гистограммы"))
+        return layout
+
+    def _make_taksE_layout(self) -> QBoxLayout:
+        def tmp():
+            sedate(self.current_image, 0.5).show()
+
+        layout = QHBoxLayout()
+        layout.addWidget(QLabel("Задание E"))
+        layout.addWidget(self._make_show_image_button(tmp, "Степенная коррекция"))
         return layout
 
     def show_taskJ_button_clicked(self):
