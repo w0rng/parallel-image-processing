@@ -45,9 +45,9 @@ def yuv_pixel_channel(pixel: "pixel", chosen_channel: int) -> "pixel":
     if chosen_channel == 0:
         return (pixel[0], 0, 0)
     elif chosen_channel == 1:
-        return (0, pixel[1], 0)
+        return (125, pixel[1], 0)
     else:
-        return (0, 0, pixel[2])
+        return (125, 0, pixel[2])
 
 
 def image_channel_matrix(image: "Image", chosen_channel: int) -> "Image":
