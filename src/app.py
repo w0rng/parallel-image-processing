@@ -1,6 +1,7 @@
 from PyQt6.QtWidgets import *
 
 from algorithms.autolevels import rgb_autolevels
+from algorithms.grey_world import grey_world_correction
 from algorithms.histogram import show_histogram
 from image import Image
 
@@ -19,7 +20,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("Что-то для обработки картинок")
 
-        self.current_image = Image.load("./assets/example.jpeg")
+        self.current_image = Image.load("../assets/example.jpeg")
 
         layout = QVBoxLayout()
         layout.addLayout(self._make_task1_layout())
@@ -28,6 +29,7 @@ class MainWindow(QMainWindow):
         layout.addLayout(self._make_task4_layout())
 
         layout.addLayout(self._make_taskJ_layout())
+        layout.addLayout(self._make_task_k_layout())
 
         container = QWidget()
         container.setLayout(layout)
@@ -159,8 +161,19 @@ class MainWindow(QMainWindow):
 
     def show_taskJ_button_clicked(self):
         image = self.current_image
-        # for _ in range(100):
         image = rgb_autolevels(image)
+        image.show()
+
+    # -- task K
+    def _make_task_k_layout(self) -> QBoxLayout:
+        layout = QHBoxLayout()
+        layout.addWidget(QLabel("Задание K"))
+        layout.addWidget(self._make_show_image_button(self.show_task_k_button_clicked, "«Серый мир»"))
+        return layout
+
+    def show_task_k_button_clicked(self):
+        image = self.current_image
+        image = grey_world_correction(image)
         image.show()
 
 
