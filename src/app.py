@@ -28,6 +28,7 @@ class MainWindow(QMainWindow):
         layout.addLayout(self._make_task4_layout())
 
         layout.addLayout(self._make_taskJ_layout())
+        layout.addLayout(self._make_task_k_layout())
 
         container = QWidget()
         container.setLayout(layout)
@@ -161,6 +162,19 @@ class MainWindow(QMainWindow):
         image = self.current_image
         # for _ in range(100):
         image = rgb_autolevels(image)
+        image.show()
+
+    # -- task K
+    def _make_task_k_layout(self) -> QBoxLayout:
+        layout = QHBoxLayout()
+        layout.addWidget(QLabel("Задание K"))
+        layout.addWidget(self._make_show_image_button(self.show_task_k_button_clicked, "«Серый мир»"))
+        return layout
+
+    def show_task_k_button_clicked(self):
+        image = Image.load('./assets/example.jpeg')
+        # for _ in range(100):
+        # image = rgb_autolevels(image)
         image.show()
 
 
