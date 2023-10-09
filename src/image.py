@@ -4,7 +4,7 @@ from typing import Literal, Self, TypeAlias
 import PIL.Image
 
 from algorithms.hls_convert import hls_to_rgb, normalize, rgb_to_hls
-from algorithms.show_color_channel import matrix_pixel_color
+from algorithms.show_color_channel import image_channel_matrix
 from algorithms.yuv_convert import (change_yuv_brightnes_and_contrast,
                                     rgb_to_yuv, yuv_to_rgb)
 
@@ -66,5 +66,8 @@ class Image:
             return normalize(self)
         return self
 
-    def show_chanenls(self, channels: list[int]) -> Self:
-        return matrix_pixel_color(self, channels)
+    # def show_chanenls(self, channels: list[int]) -> Self:
+    #     return matrix_pixel_color(self, channels)
+
+    def show_channel(self, chosen_channel: int) -> Self:
+        return image_channel_matrix(self, chosen_channel)
