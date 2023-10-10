@@ -37,7 +37,7 @@ def rgb_piecewise_linear_histogram_correction(image: "Image", correcting_points:
 
     res = []
     for count in range(1, 5):
-        with Pool("kek", count) as pool:
+        with Pool("rgb_piecewise_linear_histogram_correction", count) as pool:
             res = pool.map(_tmp_rbg, [(p, spline) for p in image.pixels])
 
     _show_chart(spline, xs, ys)
