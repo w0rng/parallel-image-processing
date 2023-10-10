@@ -5,11 +5,11 @@ if TYPE_CHECKING:
     from image import Image, pixel
 
 
-def to_yuv(pixel: "pixel") -> "pixel":
+def to_yuv(pixel: "pixel") -> tuple[int, int, int]:
     r, g, b = pixel
     y = 0.299 * r + 0.587 * g + 0.114 * b
-    u = -0.147 * r - 0.289 * g + 0.436 * b
-    v = 0.615 * r - 0.515 * g - 0.100 * b
+    u = -0.1687 * r - 0.3313 * g + 0.5 * b + 128
+    v = 0.5 * r - 0.4187 * g - 0.0813 * b + 128
 
     return int(y), int(u), int(v)
 
