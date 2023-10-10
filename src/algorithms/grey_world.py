@@ -1,5 +1,6 @@
 from copy import deepcopy
 from typing import TYPE_CHECKING
+from utils import Pool
 
 if TYPE_CHECKING:
     from image import Image
@@ -29,17 +30,30 @@ def grey_world_correction(image: "Image") -> "Image":
     avg = int((avg_r + avg_g + avg_b) / 3)
 
     res = []
-    for y, row in enumerate(pixels):
-        tmp = []
-        for x, pixel_ in enumerate(row):
-            tmp.append((
-                grey_world_pixel_modify(pixels[y][x][0], avg_r, avg),
-                grey_world_pixel_modify(pixels[y][x][1], avg_g, avg),
-                grey_world_pixel_modify(pixels[y][x][2], avg_b, avg)
-            ))
-        res.append(tmp)
+
+    for count in range(1, 5):
+        with Pool('grey_world', count) as pool:
+            res = pool.map(
+                _tmp_row_grey_world,
+                [(p, avg_r, avg_g, avg_b, avg) for p in pixels]
+            )
 
     return Image(pixels=res, mode="rgb")
+
+
+def _tmp_row_grey_world(args):
+    return _row_grey_world(*args)
+
+
+def _row_grey_world(row: list["pixel"], avg_r: int, avg_g: int, avg_b: int, avg: int) -> list["pixel"]:
+    res = []
+    for p in row:
+        res.append((
+            grey_world_pixel_modify(p[0], avg_r, avg),
+            grey_world_pixel_modify(p[1], avg_g, avg),
+            grey_world_pixel_modify(p[2], avg_b, avg)
+        ))
+    return res
 
 
 def grey_world_pixel_modify(old: int, avg_channel: int, avg: int) -> int:
