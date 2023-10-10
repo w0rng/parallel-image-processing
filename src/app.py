@@ -3,6 +3,8 @@ from PyQt6.QtWidgets import *
 from algorithms.autolevels import rgb_autolevels
 from algorithms.grey_world import grey_world_correction
 from algorithms.histogram import show_histogram
+from algorithms.piecewise_linear_histogram_correction import rgb_piecewise_linear_histogram_correction, \
+    hls_piecewise_linear_histogram_correction, parse_points_string
 from image import Image
 
 
@@ -16,6 +18,8 @@ class MainWindow(QMainWindow):
     task4_slider_brightnes: QSlider
     task4_slider_contrast: QSlider
 
+    taskC_input: QLineEdit
+
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Что-то для обработки картинок")
@@ -28,6 +32,7 @@ class MainWindow(QMainWindow):
         layout.addLayout(self._make_task3_layout())
         layout.addLayout(self._make_task4_layout())
 
+        layout.addLayout(self._make_taskC_layout())
         layout.addLayout(self._make_taskJ_layout())
         layout.addLayout(self._make_task_k_layout())
 
@@ -76,6 +81,7 @@ class MainWindow(QMainWindow):
     def hls_button_clicked(self):
         image = Image.load("../assets/example.jpeg")
         self.current_image = image.to_hls()
+
 
     def show_button_clicked(self):
         self.current_image.show()
@@ -155,6 +161,23 @@ class MainWindow(QMainWindow):
             brightnes, contrast
         )
         image.show(convert_to_rgb=True)
+
+    def _make_taskC_layout(self) -> QBoxLayout:
+        self.taskC_input = QLineEdit()
+        self.taskC_input.setText("(100,150) (200,250)")
+        layout = QHBoxLayout()
+        layout.addWidget(QLabel("Задание C"))
+        layout.addWidget(self.taskC_input)
+        layout.addWidget(self._make_show_image_button(self.show_taskC_button_clicked, "Коррекция"))
+        return layout
+
+    def show_taskC_button_clicked(self):
+        correcting_points = parse_points_string(self.taskC_input.text())
+        print(correcting_points)
+        if self.current_image.mode == "rgb":
+            rgb_piecewise_linear_histogram_correction(self.current_image, correcting_points)
+        elif self.current_image.mode == "hls":
+            hls_piecewise_linear_histogram_correction(self.current_image, correcting_points)
 
     # -- task J
     def _make_taskJ_layout(self) -> QBoxLayout:
