@@ -5,12 +5,29 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import make_interp_spline, BSpline
 from typing import TYPE_CHECKING
 
+from utils import Pool
+
 if TYPE_CHECKING:
     from image import Image, pixel
 
 
+def _row_rgb_piecewise_linear_histogram_correction(row: list["pixel"], spline: BSpline) -> list["pixel"]:
+    res = []
+    for p in row:
+        res.append((
+            int(spline(int(p[0]))),
+            int(spline(int(p[1]))),
+            int(spline(int(p[2]))),
+        ))
+    return res
+
+
+def _tmp_rbg(args):
+    return _row_rgb_piecewise_linear_histogram_correction(*args)
+
+
 def rgb_piecewise_linear_histogram_correction(image: "Image", correcting_points: list[(int, int)]):
-    from image import Image
+    from image import Image, pixel
 
     prepared_correcting_points: list[(int, int)] = [(0, 0)] + correcting_points + [(255, 255)]
     xs = [point[0] for point in prepared_correcting_points]
@@ -18,14 +35,10 @@ def rgb_piecewise_linear_histogram_correction(image: "Image", correcting_points:
 
     spline = make_interp_spline(xs, ys)
 
-    res = deepcopy(image.pixels)
-    for y, row in enumerate(res):
-        for x, pixel_ in enumerate(row):
-            res[y][x] = (
-                int(spline(int(pixel_[0]))),
-                int(spline(int(pixel_[1]))),
-                int(spline(int(pixel_[2]))),
-            )
+    res = []
+    for count in range(1, 5):
+        with Pool("kek", count) as pool:
+            res = pool.map(_tmp_rbg, [(p, spline) for p in image.pixels])
 
     _show_chart(spline, xs, ys)
 
