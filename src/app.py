@@ -1,15 +1,7 @@
 from PyQt6.QtWidgets import *
 
-from algorithms.autolevels import rgb_autolevels
-from algorithms.equalization import equalization
-from algorithms.histogram import show_histogram
-from algorithms.sedate import sedate
-from algorithms.grey_world import grey_world_correction
-from algorithms.histogram import show_histogram
-from algorithms.piecewise_linear_histogram_correction import rgb_piecewise_linear_histogram_correction, \
-    hls_piecewise_linear_histogram_correction, parse_points_string
-
 from laba2.make_noise.make_noise_multiplicatively import make_noize_multiplicatively
+from laba2.make_noise.make_noise_additive import make_noise_additive
 
 from image import Image
 
@@ -95,7 +87,13 @@ class MainWindow(QMainWindow):
 
     def _make_noise_additionally(self):
         percent, chosen_chan, params = self._get_laba2_make_noise_all_params()
-        print("kek add")
+        self.current_image = make_noise_additive(
+            self.current_image,
+            percent,
+            chosen_chan,
+            params[0],
+            params[1],
+        )
 
     def _make_noise_multiplicatively(self):
         percent, chosen_chan, params = self._get_laba2_make_noise_all_params()
