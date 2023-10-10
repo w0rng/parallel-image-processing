@@ -4,24 +4,31 @@ from algorithms.autolevels import rgb_autolevels
 from algorithms.equalization import equalization
 from algorithms.histogram import show_histogram
 from algorithms.sedate import sedate
+from algorithms.grey_world import grey_world_correction
+from algorithms.histogram import show_histogram
+from algorithms.piecewise_linear_histogram_correction import rgb_piecewise_linear_histogram_correction, \
+    hls_piecewise_linear_histogram_correction, parse_points_string
+
 from image import Image
 
 
 class MainWindow(QMainWindow):
     current_image: Image
 
-    task2_chan1: QCheckBox
-    task2_chan2: QCheckBox
-    task2_chan3: QCheckBox
+    task2_chan1: QPushButton
+    task2_chan2: QPushButton
+    task2_chan3: QPushButton
 
     task4_slider_brightnes: QSlider
     task4_slider_contrast: QSlider
+
+    taskC_input: QLineEdit
 
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Что-то для обработки картинок")
 
-        self.current_image = Image.load("./assets/example.jpeg")
+        self.current_image = Image.load("../assets/example.jpeg")
 
         layout = QVBoxLayout()
         layout.addLayout(self._make_task1_layout())
@@ -29,7 +36,9 @@ class MainWindow(QMainWindow):
         layout.addLayout(self._make_task3_layout())
         layout.addLayout(self._make_task4_layout())
 
+        layout.addLayout(self._make_taskC_layout())
         layout.addLayout(self._make_taskJ_layout())
+        layout.addLayout(self._make_task_k_layout())
 
         container = QWidget()
         container.setLayout(layout)
@@ -67,15 +76,16 @@ class MainWindow(QMainWindow):
         return show_image_button
 
     def rgb_button_clicked(self):
-        self.current_image = Image.load("./assets/example.jpeg")
+        self.current_image = Image.load("../assets/example.jpeg")
 
     def yuv_button_clicked(self):
-        image = Image.load("assets/example.jpeg")
+        image = Image.load("../assets/example.jpeg")
         self.current_image = image.to_yuv()
 
     def hls_button_clicked(self):
-        image = Image.load("assets/example.jpeg")
+        image = Image.load("../assets/example.jpeg")
         self.current_image = image.to_hls()
+
 
     def show_button_clicked(self):
         self.current_image.show()
@@ -85,29 +95,33 @@ class MainWindow(QMainWindow):
         """разложение представления изображения в выбранной цветовой модели
         на отдельные каналы с возможностью визуализации выбранного канала для заданной
         цветовой модели"""
-        self.task2_chan1 = QCheckBox("chan1")
-        self.task2_chan2 = QCheckBox("chan2")
-        self.task2_chan3 = QCheckBox("chan3")
+        self.task2_chan1 = QPushButton("chan1")
+        self.task2_chan2 = QPushButton("chan2")
+        self.task2_chan3 = QPushButton("chan3")
+
+        self.task2_chan1.clicked.connect(self.task_2_channel_1_clicked)
+        self.task2_chan2.clicked.connect(self.task_2_channel_2_clicked)
+        self.task2_chan3.clicked.connect(self.task_2_channel_3_clicked)
+
 
         layout = QHBoxLayout()
         layout.addWidget(QLabel("Задание 2"))
         layout.addWidget(self.task2_chan1)
         layout.addWidget(self.task2_chan2)
         layout.addWidget(self.task2_chan3)
-        layout.addWidget(self._make_show_image_button(self.show_task2_button_clicked))
 
         return layout
 
-    def show_task2_button_clicked(self):
-        chans: list[int] = []
-        if self.task2_chan1.isChecked():
-            chans.append(0)
-        if self.task2_chan2.isChecked():
-            chans.append(1)
-        if self.task2_chan3.isChecked():
-            chans.append(2)
+    def task_2_channel_1_clicked(self):
+        image = self.current_image.show_channel(0)
+        image.show(convert_to_rgb=True)
 
-        image = self.current_image.show_chanenls(chans)
+    def task_2_channel_2_clicked(self):
+        image = self.current_image.show_channel(1)
+        image.show(convert_to_rgb=True)
+
+    def task_2_channel_3_clicked(self):
+        image = self.current_image.show_channel(2)
         image.show(convert_to_rgb=True)
 
     # -- task 3
@@ -152,6 +166,23 @@ class MainWindow(QMainWindow):
         )
         image.show(convert_to_rgb=True)
 
+    def _make_taskC_layout(self) -> QBoxLayout:
+        self.taskC_input = QLineEdit()
+        self.taskC_input.setText("(100,150) (200,250)")
+        layout = QHBoxLayout()
+        layout.addWidget(QLabel("Задание C"))
+        layout.addWidget(self.taskC_input)
+        layout.addWidget(self._make_show_image_button(self.show_taskC_button_clicked, "Коррекция"))
+        return layout
+
+    def show_taskC_button_clicked(self):
+        correcting_points = parse_points_string(self.taskC_input.text())
+        print(correcting_points)
+        if self.current_image.mode == "rgb":
+            rgb_piecewise_linear_histogram_correction(self.current_image, correcting_points)
+        elif self.current_image.mode == "hls":
+            hls_piecewise_linear_histogram_correction(self.current_image, correcting_points)
+
     # -- task J
     def _make_taskJ_layout(self) -> QBoxLayout:
         layout = QHBoxLayout()
@@ -183,8 +214,19 @@ class MainWindow(QMainWindow):
 
     def show_taskJ_button_clicked(self):
         image = self.current_image
-        # for _ in range(100):
         image = rgb_autolevels(image)
+        image.show()
+
+    # -- task K
+    def _make_task_k_layout(self) -> QBoxLayout:
+        layout = QHBoxLayout()
+        layout.addWidget(QLabel("Задание K"))
+        layout.addWidget(self._make_show_image_button(self.show_task_k_button_clicked, "«Серый мир»"))
+        return layout
+
+    def show_task_k_button_clicked(self):
+        image = self.current_image
+        image = grey_world_correction(image)
         image.show()
 
 
