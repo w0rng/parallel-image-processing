@@ -41,6 +41,7 @@ def hls_pixel_channel(pixel: "pixel", chosen_channel: int) -> "pixel":
     else:
         return (0, 0.5, pixel[2])
 
+
 def yuv_pixel_channel(pixel: "pixel", chosen_channel: int) -> "pixel":
     if chosen_channel == 0:
         return (pixel[0], 0, 0)
@@ -58,9 +59,9 @@ def image_channel_matrix(image: "Image", chosen_channel: int) -> "Image":
     for row in image.pixels:
         tmp_row = []
         for pixel_ in row:
-            if image.mode == 'rgb':
-                tmp_row.append(hls_pixel_channel(pixel_, chosen_channel))
-            elif image.mode == 'hls':
+            if image.mode == "rgb":
+                tmp_row.append(rgb_pixel_channel(pixel_, chosen_channel))
+            elif image.mode == "hls":
                 tmp_row.append(hls_pixel_channel(pixel_, chosen_channel))
             else:
                 tmp_row.append(yuv_pixel_channel(pixel_, chosen_channel))

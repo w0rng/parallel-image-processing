@@ -59,6 +59,14 @@ class Image:
             return image
         if self.mode == "yuv":
             return yuv_to_rgb(self)
+        if self.mode == "rgb":
+            pixels = []
+            for row in self.pixels:
+                tmp_row = []
+                for pixel in row:
+                    tmp_row.append(tuple(map(int, pixel)))
+                pixels.append(tmp_row)
+            return Image(pixels)
         return self
 
     def stupid_normalize(self) -> Self:

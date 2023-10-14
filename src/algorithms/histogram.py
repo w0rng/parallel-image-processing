@@ -14,8 +14,8 @@ def show_histogram(image: "Image") -> None:
     for row in image.pixels:
         for pixel in row:
             r_channel[pixel[0]] += 1
-            g_channel[pixel[1]] += 1
-            b_channel[pixel[2]] += 1
+            g_channel[int(pixel[1])] += 1
+            b_channel[int(pixel[2])] += 1
     max_r = max(r_channel)
     max_g = max(g_channel)
     max_b = max(b_channel)

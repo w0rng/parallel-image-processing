@@ -2,13 +2,12 @@ from PyQt6.QtWidgets import *
 
 from algorithms.autolevels import rgb_autolevels
 from algorithms.equalization import equalization
-from algorithms.histogram import show_histogram
-from algorithms.sedate import sedate
 from algorithms.grey_world import grey_world_correction
 from algorithms.histogram import show_histogram
-from algorithms.piecewise_linear_histogram_correction import rgb_piecewise_linear_histogram_correction, \
-    hls_piecewise_linear_histogram_correction, parse_points_string
-
+from algorithms.piecewise_linear_histogram_correction import (
+    hls_piecewise_linear_histogram_correction, parse_points_string,
+    rgb_piecewise_linear_histogram_correction)
+from algorithms.sedate import sedate
 from image import Image
 
 
@@ -26,7 +25,7 @@ class MainWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Что-то для обработки картинок")
+        self.setWindowTitle("Абрамов МПИ22-01")
 
         self.current_image = Image.load("../assets/example.jpeg")
 
@@ -36,9 +35,9 @@ class MainWindow(QMainWindow):
         layout.addLayout(self._make_task3_layout())
         layout.addLayout(self._make_task4_layout())
 
-        layout.addLayout(self._make_taskC_layout())
-        layout.addLayout(self._make_taskJ_layout())
-        layout.addLayout(self._make_task_k_layout())
+        layout.addLayout(self._make_taksB_layout())
+        layout.addLayout(self._make_taksE_layout())
+        # layout.addLayout(self._make_task_k_layout())
 
         container = QWidget()
         container.setLayout(layout)
@@ -86,7 +85,6 @@ class MainWindow(QMainWindow):
         image = Image.load("../assets/example.jpeg")
         self.current_image = image.to_hls()
 
-
     def show_button_clicked(self):
         self.current_image.show()
 
@@ -102,7 +100,6 @@ class MainWindow(QMainWindow):
         self.task2_chan1.clicked.connect(self.task_2_channel_1_clicked)
         self.task2_chan2.clicked.connect(self.task_2_channel_2_clicked)
         self.task2_chan3.clicked.connect(self.task_2_channel_3_clicked)
-
 
         layout = QHBoxLayout()
         layout.addWidget(QLabel("Задание 2"))
@@ -172,22 +169,30 @@ class MainWindow(QMainWindow):
         layout = QHBoxLayout()
         layout.addWidget(QLabel("Задание C"))
         layout.addWidget(self.taskC_input)
-        layout.addWidget(self._make_show_image_button(self.show_taskC_button_clicked, "Коррекция"))
+        layout.addWidget(
+            self._make_show_image_button(self.show_taskC_button_clicked, "Коррекция")
+        )
         return layout
 
     def show_taskC_button_clicked(self):
         correcting_points = parse_points_string(self.taskC_input.text())
         print(correcting_points)
         if self.current_image.mode == "rgb":
-            rgb_piecewise_linear_histogram_correction(self.current_image, correcting_points)
+            rgb_piecewise_linear_histogram_correction(
+                self.current_image, correcting_points
+            )
         elif self.current_image.mode == "hls":
-            hls_piecewise_linear_histogram_correction(self.current_image, correcting_points)
+            hls_piecewise_linear_histogram_correction(
+                self.current_image, correcting_points
+            )
 
     # -- task J
     def _make_taskJ_layout(self) -> QBoxLayout:
         layout = QHBoxLayout()
         layout.addWidget(QLabel("Задание J"))
-        layout.addWidget(self._make_show_image_button(self.show_taskJ_button_clicked, "«Autolevels»"))
+        layout.addWidget(
+            self._make_show_image_button(self.show_taskJ_button_clicked, "«Autolevels»")
+        )
 
     def _make_taksB_layout(self) -> QBoxLayout:
         def tmp():
@@ -195,7 +200,7 @@ class MainWindow(QMainWindow):
             self.current_image.show()
 
         layout = QHBoxLayout()
-        layout.addWidget(QLabel("Задание B"))
+        layout.addWidget(QLabel("Индивидуальное задание 1"))
         layout.addWidget(self._make_show_image_button(tmp, "Нормализация гистограммы"))
         return layout
 
@@ -207,7 +212,7 @@ class MainWindow(QMainWindow):
             sedate(self.current_image, gamma).show()
 
         layout = QHBoxLayout()
-        layout.addWidget(QLabel("Задание E"))
+        layout.addWidget(QLabel("Индивидуальное задание 2"))
         layout.addWidget(slider)
         layout.addWidget(self._make_show_image_button(tmp, "Степенная коррекция"))
         return layout
@@ -221,7 +226,9 @@ class MainWindow(QMainWindow):
     def _make_task_k_layout(self) -> QBoxLayout:
         layout = QHBoxLayout()
         layout.addWidget(QLabel("Задание K"))
-        layout.addWidget(self._make_show_image_button(self.show_task_k_button_clicked, "«Серый мир»"))
+        layout.addWidget(
+            self._make_show_image_button(self.show_task_k_button_clicked, "«Серый мир»")
+        )
         return layout
 
     def show_task_k_button_clicked(self):

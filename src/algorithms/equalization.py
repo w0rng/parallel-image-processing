@@ -1,34 +1,47 @@
 from typing import TYPE_CHECKING
 
+from utils import Pool
+
 if TYPE_CHECKING:
     from image import Image, pixel
 
 
-def equalization(image: "Image") -> "Image":
+def _equalization_row(row: list["pixel"]) -> tuple[list[int], list[int], list[int]]:
+    k = 256
+    hr = [0] * 256
+    hg = [0] * 256
+    hb = [0] * 256
+
+    for pixel in row:
+        r, g, b = pixel
+        hr[int(r)] += 1
+        hg[int(g)] += 1
+        hb[int(b)] += 1
+
+    return hr, hg, hb
+
+
+def transpose(matrix):
+    return [list(row) for row in zip(*matrix)]
+
+
+def sum_rows(matrix):
+    r = [0] * len(matrix[0])
+    for row in matrix:
+        for i, el in enumerate(row):
+            r[i] += el
+    cumulative_sum_r = [sum(r[: i + 1]) for i in range(256)]
+    return [int(255 * s / cumulative_sum_r[-1]) for s in cumulative_sum_r]
+
+
+def _equalization(image: "Image", count: int) -> "Image":
     from image import Image
 
-    k = 256
-    hr = [0.0] * 256
-    hg = [0.0] * 256
-    hb = [0.0] * 256
-    for row in image.pixels:
-        for pixel in row:
-            r, g, b = pixel
-            hr[int(r)] += 1
-            hg[int(g)] += 1
-            hb[int(b)] += 1
-    cumulative_sum_r = [sum(hr[: i + 1]) for i in range(k)]
-    cumulative_sum_g = [sum(hg[: i + 1]) for i in range(k)]
-    cumulative_sum_b = [sum(hb[: i + 1]) for i in range(k)]
-    normalized_cumulative_sum_r = [
-        int(255 * s / cumulative_sum_r[-1]) for s in cumulative_sum_r
-    ]
-    normalized_cumulative_sum_g = [
-        int(255 * s / cumulative_sum_g[-1]) for s in cumulative_sum_g
-    ]
-    normalized_cumulative_sum_b = [
-        int(255 * s / cumulative_sum_b[-1]) for s in cumulative_sum_b
-    ]
+    with Pool("equalization_sum", count) as pool:
+        result = pool.map(_equalization_row, image.pixels)
+        t_result = transpose(result)
+    with Pool("equalization_calc", count) as pool:
+        hr, hg, hb = pool.map(sum_rows, t_result)
 
     pixels: list[list["pixel"]] = []
     for row in image.pixels:
@@ -37,11 +50,18 @@ def equalization(image: "Image") -> "Image":
             r, g, b = pixel
             tmp_row.append(
                 (
-                    normalized_cumulative_sum_r[int(r)],
-                    normalized_cumulative_sum_g[int(g)],
-                    normalized_cumulative_sum_b[int(b)],
+                    hr[int(r)],
+                    hg[int(g)],
+                    hb[int(b)],
                 )
             )
         pixels.append(tmp_row)
 
-    return Image(pixels=pixels, mode=image.mode)
+    return Image(pixels=pixels, mode="rgb")
+
+
+def equalization(image: "Image") -> "Image":
+    r = None
+    for i in range(1, 5):
+        r = _equalization(image, i)
+    return r
