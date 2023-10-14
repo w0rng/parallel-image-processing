@@ -2,9 +2,17 @@ from PyQt6.QtWidgets import *
 
 from image import Image
 from laba2.make_noise.make_noise_additive import make_noise_additive
-from laba2.make_noise.make_noise_multiplicatively import \
-    make_noize_multiplicatively
+from laba2.make_noise.make_noise_multiplicatively import make_noize_multiplicatively
 from laba2.make_noise.make_noise_pulse import make_noise_pulse
+from laba2.filters.linear import linear_filter
+
+"""
+осуществление линейной фильтрации с предоставлением возможности задания
+параметров линейного фильтра вручную (размер ядра и коэффициенты).
+
+n - размер ядра
+k - коэффициенты
+"""
 
 
 class MainWindow(QMainWindow):
@@ -25,6 +33,8 @@ class MainWindow(QMainWindow):
     laba2_button_chan2: QRadioButton
     laba2_button_chan3: QRadioButton
 
+    laba2_linear_filter_input: QLineEdit
+
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Что-то для обработки картинок")
@@ -36,6 +46,7 @@ class MainWindow(QMainWindow):
         layout.addLayout(self._make_task1_layout())
 
         layout.addLayout(self._make_noise_layout())
+        layout.addLayout(self._make_linear_filter_layout())
 
         container = QWidget()
         container.setLayout(layout)
@@ -159,6 +170,24 @@ class MainWindow(QMainWindow):
         elif self.laba2_button_chan3.isChecked():
             chan = 2
         return chan
+
+    # -- task 2
+    def _make_linear_filter_layout(self) -> QBoxLayout:
+        self.laba2_linear_filter_input = QLineEdit()
+
+        layout = QHBoxLayout()
+        layout.addWidget(QLabel("Задание 2"))
+        layout.addWidget(self.laba2_linear_filter_input)
+        layout.addWidget(self._make_show_image_button(self._linear_filter_tapped))
+
+        return layout
+
+    def _linear_filter_tapped(self):
+        params = list(map(float, self.laba2_linear_filter_input.text().split(",")))
+        h, w, k = int(params[0]), int(params[1]), float(params[2])
+        kernel = [[1 / k for _ in range(w)] for _ in range(h)]
+        self.current_image = linear_filter(self.current_image, kernel)
+        self.current_image.show()
 
     # -- task 1
     def _make_task1_layout(self) -> QBoxLayout:
