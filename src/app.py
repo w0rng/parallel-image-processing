@@ -1,9 +1,10 @@
 from PyQt6.QtWidgets import *
 
-from laba2.make_noise.make_noise_multiplicatively import make_noize_multiplicatively
-from laba2.make_noise.make_noise_additive import make_noise_additive
-
 from image import Image
+from laba2.make_noise.make_noise_additive import make_noise_additive
+from laba2.make_noise.make_noise_multiplicatively import \
+    make_noize_multiplicatively
+from laba2.make_noise.make_noise_pulse import make_noise_pulse
 
 
 class MainWindow(QMainWindow):
@@ -83,7 +84,12 @@ class MainWindow(QMainWindow):
 
     def _make_noise_impulslly(self):
         percent, chosen_chan, params = self._get_laba2_make_noise_all_params()
-        print("kek impuls")
+        self.current_image = make_noise_pulse(
+            self.current_image,
+            percent,
+            chosen_chan,
+            params[0],
+        )
 
     def _make_noise_additionally(self):
         percent, chosen_chan, params = self._get_laba2_make_noise_all_params()
@@ -132,7 +138,7 @@ class MainWindow(QMainWindow):
         return (
             self._get_laba2_make_noise_percent(),
             self._get_laba2_make_noise_chosen_chan(),
-            self._get_laba2_make_noise_params_as_arr()
+            self._get_laba2_make_noise_params_as_arr(),
         )
 
     def _get_laba2_make_noise_params_as_arr(self) -> list[float]:
@@ -194,7 +200,6 @@ class MainWindow(QMainWindow):
     def hls_button_clicked(self):
         image = Image.load("../assets/example.jpeg")
         self.current_image = image.to_hls()
-
 
     def show_button_clicked(self):
         self.current_image.show()
