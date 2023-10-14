@@ -1,15 +1,18 @@
 from PyQt6.QtWidgets import *
 
-from algorithms.autolevels import rgb_autolevels
-from algorithms.equalization import equalization
-from algorithms.histogram import show_histogram
-from algorithms.sedate import sedate
-from algorithms.grey_world import grey_world_correction
-from algorithms.histogram import show_histogram
-from algorithms.piecewise_linear_histogram_correction import rgb_piecewise_linear_histogram_correction, \
-    hls_piecewise_linear_histogram_correction, parse_points_string
-
 from image import Image
+from laba2.make_noise.make_noise_additive import make_noise_additive
+from laba2.make_noise.make_noise_multiplicatively import make_noize_multiplicatively
+from laba2.make_noise.make_noise_pulse import make_noise_pulse
+from laba2.filters.linear import linear_filter
+
+"""
+осуществление линейной фильтрации с предоставлением возможности задания
+параметров линейного фильтра вручную (размер ядра и коэффициенты).
+
+n - размер ядра
+k - коэффициенты
+"""
 
 
 class MainWindow(QMainWindow):
@@ -24,6 +27,14 @@ class MainWindow(QMainWindow):
 
     taskC_input: QLineEdit
 
+    laba2_make_noise_percent: QSlider
+    laba2_make_noise_params_input: QLineEdit
+    laba2_button_chan1: QRadioButton
+    laba2_button_chan2: QRadioButton
+    laba2_button_chan3: QRadioButton
+
+    laba2_linear_filter_input: QLineEdit
+
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Что-то для обработки картинок")
@@ -31,19 +42,152 @@ class MainWindow(QMainWindow):
         self.current_image = Image.load("../assets/example.jpeg")
 
         layout = QVBoxLayout()
-        layout.addLayout(self._make_task1_layout())
-        layout.addLayout(self._make_task2_layout())
-        layout.addLayout(self._make_task3_layout())
-        layout.addLayout(self._make_task4_layout())
 
-        layout.addLayout(self._make_taskC_layout())
-        layout.addLayout(self._make_taskJ_layout())
-        layout.addLayout(self._make_task_k_layout())
+        layout.addLayout(self._make_task1_layout())
+
+        layout.addLayout(self._make_noise_layout())
+        layout.addLayout(self._make_linear_filter_layout())
 
         container = QWidget()
         container.setLayout(layout)
 
         self.setCentralWidget(container)
+
+    # -- task 1
+    def _make_noise_layout(self) -> QBoxLayout:
+        impl_button = QPushButton("Импульсный")
+        add_button = QPushButton("Аддитивный")
+        mul_button = QPushButton("Мультипликативный")
+
+        self.laba2_make_noise_percent = QSlider()
+        self.laba2_make_noise_percent.setRange(0, 100)
+        self.laba2_make_noise_percent.setValue(30)
+
+        self.laba2_make_noise_params_input = QLineEdit()
+        self.laba2_make_noise_params_input.setPlaceholderText("Параметры")
+
+        self.laba2_button_chan1 = QRadioButton("chan1")
+        self.laba2_button_chan2 = QRadioButton("chan2")
+        self.laba2_button_chan3 = QRadioButton("chan3")
+        self.laba2_button_chan1.setChecked(True)
+
+        button_group = QButtonGroup(parent=self)
+        button_group.addButton(self.laba2_button_chan1)
+        button_group.addButton(self.laba2_button_chan2)
+        button_group.addButton(self.laba2_button_chan3)
+
+        impl_button.clicked.connect(self._make_noise_impulslly)
+        add_button.clicked.connect(self._make_noise_additionally)
+        mul_button.clicked.connect(self._make_noise_multiplicatively)
+
+        layout = QHBoxLayout()
+        layout.addWidget(QLabel("Зашумить"))
+        layout.addWidget(self.laba2_make_noise_percent)
+        layout.addWidget(self.laba2_button_chan1)
+        layout.addWidget(self.laba2_button_chan2)
+        layout.addWidget(self.laba2_button_chan3)
+        layout.addWidget(self.laba2_make_noise_params_input)
+        layout.addWidget(impl_button)
+        layout.addWidget(add_button)
+        layout.addWidget(mul_button)
+
+        return layout
+
+    def _make_noise_impulslly(self):
+        percent, chosen_chan, params = self._get_laba2_make_noise_all_params()
+        self.current_image = make_noise_pulse(
+            self.current_image,
+            percent,
+            chosen_chan,
+            params[0],
+        )
+
+    def _make_noise_additionally(self):
+        percent, chosen_chan, params = self._get_laba2_make_noise_all_params()
+        self.current_image = make_noise_additive(
+            self.current_image,
+            percent,
+            chosen_chan,
+            params[0],
+            params[1],
+        )
+
+    def _make_noise_multiplicatively(self):
+        percent, chosen_chan, params = self._get_laba2_make_noise_all_params()
+
+        # c1_min = 99999
+        # c1_max = -99999
+        # c2_min = 99999
+        # c2_max = -99999
+        # c3_min = 99999
+        # c3_max = -99999
+        # for row in self.current_image.pixels:
+        #     for p in row:
+        #         if p[0] > c1_max:
+        #             c1_max = p[0]
+        #         if p[0] < c1_min:
+        #             c1_min = p[0]
+        #         if p[1] > c2_max:
+        #             c2_max = p[1]
+        #         if p[1] < c2_min:
+        #             c2_min = p[1]
+        #         if p[2] > c3_max:
+        #             c3_max = p[2]
+        #         if p[2] < c3_min:
+        #             c3_min = p[2]
+        # print(c1_min, c1_max, c2_min, c2_max, c3_min, c3_max)
+
+        self.current_image = make_noize_multiplicatively(
+            self.current_image,
+            percent,
+            chosen_chan,
+            params[0],
+            params[1],
+        )
+
+    def _get_laba2_make_noise_all_params(self) -> tuple[float, int, list[float]]:
+        return (
+            self._get_laba2_make_noise_percent(),
+            self._get_laba2_make_noise_chosen_chan(),
+            self._get_laba2_make_noise_params_as_arr(),
+        )
+
+    def _get_laba2_make_noise_params_as_arr(self) -> list[float]:
+        text = self.laba2_make_noise_params_input.text()
+        if not text:
+            return []
+        return [float(num) for num in text.replace(" ", "").split(",")]
+
+    def _get_laba2_make_noise_percent(self) -> float:
+        return self.laba2_make_noise_percent.value() / 100
+
+    def _get_laba2_make_noise_chosen_chan(self) -> int:
+        chan = 0
+        if self.laba2_button_chan1.isChecked():
+            chan = 0
+        elif self.laba2_button_chan2.isChecked():
+            chan = 1
+        elif self.laba2_button_chan3.isChecked():
+            chan = 2
+        return chan
+
+    # -- task 2
+    def _make_linear_filter_layout(self) -> QBoxLayout:
+        self.laba2_linear_filter_input = QLineEdit()
+
+        layout = QHBoxLayout()
+        layout.addWidget(QLabel("Задание 2"))
+        layout.addWidget(self.laba2_linear_filter_input)
+        layout.addWidget(self._make_show_image_button(self._linear_filter_tapped))
+
+        return layout
+
+    def _linear_filter_tapped(self):
+        params = list(map(float, self.laba2_linear_filter_input.text().split(",")))
+        h, w, k = int(params[0]), int(params[1]), float(params[2])
+        kernel = [[1 / k for _ in range(w)] for _ in range(h)]
+        self.current_image = linear_filter(self.current_image, kernel)
+        self.current_image.show()
 
     # -- task 1
     def _make_task1_layout(self) -> QBoxLayout:
@@ -58,7 +202,7 @@ class MainWindow(QMainWindow):
         yuv_button.clicked.connect(self.yuv_button_clicked)
 
         color_models_layout = QHBoxLayout()
-        color_models_layout.addWidget(QLabel("Задание 1"))
+        color_models_layout.addWidget(QLabel("Выбор"))
         color_models_layout.addWidget(rgb_button)
         color_models_layout.addWidget(hls_button)
         color_models_layout.addWidget(yuv_button)
@@ -86,148 +230,8 @@ class MainWindow(QMainWindow):
         image = Image.load("../assets/example.jpeg")
         self.current_image = image.to_hls()
 
-
     def show_button_clicked(self):
         self.current_image.show()
-
-    # -- task 2
-    def _make_task2_layout(self) -> QBoxLayout:
-        """разложение представления изображения в выбранной цветовой модели
-        на отдельные каналы с возможностью визуализации выбранного канала для заданной
-        цветовой модели"""
-        self.task2_chan1 = QPushButton("chan1")
-        self.task2_chan2 = QPushButton("chan2")
-        self.task2_chan3 = QPushButton("chan3")
-
-        self.task2_chan1.clicked.connect(self.task_2_channel_1_clicked)
-        self.task2_chan2.clicked.connect(self.task_2_channel_2_clicked)
-        self.task2_chan3.clicked.connect(self.task_2_channel_3_clicked)
-
-
-        layout = QHBoxLayout()
-        layout.addWidget(QLabel("Задание 2"))
-        layout.addWidget(self.task2_chan1)
-        layout.addWidget(self.task2_chan2)
-        layout.addWidget(self.task2_chan3)
-
-        return layout
-
-    def task_2_channel_1_clicked(self):
-        image = self.current_image.show_channel(0)
-        image.show(convert_to_rgb=True)
-
-    def task_2_channel_2_clicked(self):
-        image = self.current_image.show_channel(1)
-        image.show(convert_to_rgb=True)
-
-    def task_2_channel_3_clicked(self):
-        image = self.current_image.show_channel(2)
-        image.show(convert_to_rgb=True)
-
-    # -- task 3
-    def _make_task3_layout(self) -> QBoxLayout:
-        """построение гистограммы для выбранного канала заданной цветовой модели"""
-        layout = QHBoxLayout()
-        layout.addWidget(QLabel("Задание 3"))
-        layout.addWidget(
-            self._make_show_image_button(
-                self.show_task3_button_clicked, "Показать гистограмму"
-            )
-        )
-
-        return layout
-
-    def show_task3_button_clicked(self):
-        show_histogram(self.current_image)
-
-    # -- task 4
-    def _make_task4_layout(self) -> QBoxLayout:
-        """построение гистограммы для выбранного канала заданной цветовой модели"""
-        self.task4_slider_brightnes = QSlider()
-        self.task4_slider_contrast = QSlider()
-        self.task4_slider_brightnes.setRange(-100, 100)
-        self.task4_slider_contrast.setRange(0, 100)
-
-        layout = QHBoxLayout()
-        layout.addWidget(QLabel("Задание 4"))
-        layout.addWidget(QLabel("Яркость"))
-        layout.addWidget(self.task4_slider_brightnes)
-        layout.addWidget(QLabel("Контраст"))
-        layout.addWidget(self.task4_slider_contrast)
-        layout.addWidget(self._make_show_image_button(self.show_task4_button_clicked))
-
-        return layout
-
-    def show_task4_button_clicked(self):
-        brightnes = self.task4_slider_brightnes.value()
-        contrast = self.task4_slider_contrast.value() / 50
-        image = self.current_image.change_yuv_brightnes_and_contrast(
-            brightnes, contrast
-        )
-        image.show(convert_to_rgb=True)
-
-    def _make_taskC_layout(self) -> QBoxLayout:
-        self.taskC_input = QLineEdit()
-        self.taskC_input.setText("(100,150) (200,250)")
-        layout = QHBoxLayout()
-        layout.addWidget(QLabel("Задание C"))
-        layout.addWidget(self.taskC_input)
-        layout.addWidget(self._make_show_image_button(self.show_taskC_button_clicked, "Коррекция"))
-        return layout
-
-    def show_taskC_button_clicked(self):
-        correcting_points = parse_points_string(self.taskC_input.text())
-        print(correcting_points)
-        if self.current_image.mode == "rgb":
-            rgb_piecewise_linear_histogram_correction(self.current_image, correcting_points)
-        elif self.current_image.mode == "hls":
-            hls_piecewise_linear_histogram_correction(self.current_image, correcting_points)
-
-    # -- task J
-    def _make_taskJ_layout(self) -> QBoxLayout:
-        layout = QHBoxLayout()
-        layout.addWidget(QLabel("Задание J"))
-        layout.addWidget(self._make_show_image_button(self.show_taskJ_button_clicked, "«Autolevels»"))
-
-    def _make_taksB_layout(self) -> QBoxLayout:
-        def tmp():
-            self.current_image = equalization(self.current_image)
-            self.current_image.show()
-
-        layout = QHBoxLayout()
-        layout.addWidget(QLabel("Задание B"))
-        layout.addWidget(self._make_show_image_button(tmp, "Нормализация гистограммы"))
-        return layout
-
-    def _make_taksE_layout(self) -> QBoxLayout:
-        slider = QSlider()
-
-        def tmp():
-            gamma = (slider.value() + 1) / 20
-            sedate(self.current_image, gamma).show()
-
-        layout = QHBoxLayout()
-        layout.addWidget(QLabel("Задание E"))
-        layout.addWidget(slider)
-        layout.addWidget(self._make_show_image_button(tmp, "Степенная коррекция"))
-        return layout
-
-    def show_taskJ_button_clicked(self):
-        image = self.current_image
-        image = rgb_autolevels(image)
-        image.show()
-
-    # -- task K
-    def _make_task_k_layout(self) -> QBoxLayout:
-        layout = QHBoxLayout()
-        layout.addWidget(QLabel("Задание K"))
-        layout.addWidget(self._make_show_image_button(self.show_task_k_button_clicked, "«Серый мир»"))
-        return layout
-
-    def show_task_k_button_clicked(self):
-        image = self.current_image
-        image = grey_world_correction(image)
-        image.show()
 
 
 if __name__ == "__main__":
