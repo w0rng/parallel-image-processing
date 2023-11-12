@@ -97,6 +97,7 @@ class MainWindow(QMainWindow):
 
     def _make_noise_additionally(self):
         percent, chosen_chan, params = self._get_laba2_make_noise_all_params()
+        start_time = time.time()
         self.current_image = make_noise_additive(
             self.current_image,
             percent,
@@ -104,32 +105,13 @@ class MainWindow(QMainWindow):
             params[0],
             params[1],
         )
+        end_time = time.time() - start_time
+        calc(f"additive[{percent}, {params[0]}, {params[1]}]", end_time, self.start_image, self.current_image)
+
 
     def _make_noise_multiplicatively(self):
         percent, chosen_chan, params = self._get_laba2_make_noise_all_params()
-
-        # c1_min = 99999
-        # c1_max = -99999
-        # c2_min = 99999
-        # c2_max = -99999
-        # c3_min = 99999
-        # c3_max = -99999
-        # for row in self.current_image.pixels:
-        #     for p in row:
-        #         if p[0] > c1_max:
-        #             c1_max = p[0]
-        #         if p[0] < c1_min:
-        #             c1_min = p[0]
-        #         if p[1] > c2_max:
-        #             c2_max = p[1]
-        #         if p[1] < c2_min:
-        #             c2_min = p[1]
-        #         if p[2] > c3_max:
-        #             c3_max = p[2]
-        #         if p[2] < c3_min:
-        #             c3_min = p[2]
-        # print(c1_min, c1_max, c2_min, c2_max, c3_min, c3_max)
-
+        start_time = time.time()
         self.current_image = make_noize_multiplicatively(
             self.current_image,
             percent,
@@ -137,6 +119,9 @@ class MainWindow(QMainWindow):
             params[0],
             params[1],
         )
+        end_time = time.time() - start_time
+        calc(f"multiplicatively[{percent}, {params[0]}, {params[1]}]", end_time, self.start_image, self.current_image)
+
 
     def _get_laba2_make_noise_all_params(self) -> tuple[float, int, list[float]]:
         return (
