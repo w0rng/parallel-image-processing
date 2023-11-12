@@ -22,6 +22,7 @@ class MainWindow(QMainWindow):
     laba2_button_chan3: QRadioButton
 
     laba2_linear_gradient_params: QLineEdit
+    laba2_mean_filter_params: QLineEdit
 
     def __init__(self):
         super().__init__()
@@ -37,6 +38,8 @@ class MainWindow(QMainWindow):
         layout.addLayout(self._make_noise_layout())
 
         layout.addLayout(self._make_task2_layout())
+
+        layout.addLayout(self._make_task3_layout())
 
         container = QWidget()
         container.setLayout(layout)
@@ -180,6 +183,28 @@ class MainWindow(QMainWindow):
         if not text:
             return []
         return [int(num) for num in text.replace(" ", "").split(",")]
+
+    # -- task 3
+    def _make_task3_layout(self):
+        layout = QHBoxLayout()
+
+        label = QLabel('Задание 3')
+
+        self.laba2_mean_filter_params = QLineEdit()
+        self.laba2_mean_filter_params.setPlaceholderText("Высота, ширина маски")
+
+        mean_filter_button = QPushButton('Среднеарифметический фильтра (рекурс.)')
+        mean_filter_button.clicked.connect(self.mean_filter_button_clicked)
+
+        layout.addWidget(label)
+        layout.addWidget(self.laba2_mean_filter_params)
+        layout.addWidget(mean_filter_button)
+
+        return layout
+
+    def mean_filter_button_clicked(self):
+        # some
+        return
 
     # -- task 1
     def _make_task1_layout(self) -> QBoxLayout:
