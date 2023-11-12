@@ -1,7 +1,7 @@
 from image import Image
 
 
-def delta(a: Image, b: Image) -> float:
+def msad(a: Image, b: Image) -> float:
     a_width, a_height = a.size
     b_width, b_height = b.size
 
@@ -12,6 +12,6 @@ def delta(a: Image, b: Image) -> float:
     for y in range(min_height):
         for x in range(min_width):
             for channel in range(3):
-                result += a.pixels[y][x][channel] - b.pixels[y][x][channel]
+                result += abs(a.pixels[y][x][channel] - b.pixels[y][x][channel])
 
     return result / min_height / min_height / 3
