@@ -1,16 +1,31 @@
 from PyQt6.QtWidgets import *
 
-from laba2.make_noise.make_noise_multiplicatively import make_noize_multiplicatively
+from image import Image
 from laba2.make_noise.make_noise_additive import make_noise_additive
-
+from laba2.make_noise.make_noise_multiplicatively import make_noize_multiplicatively
+from laba2.make_noise.make_noise_pulse import make_noise_pulse
 from laba2.filters.linear import linear_filter
 
-from image import Image
-from laba2.models.kernel import Kernel
+"""
+осуществление линейной фильтрации с предоставлением возможности задания
+параметров линейного фильтра вручную (размер ядра и коэффициенты).
+
+n - размер ядра
+k - коэффициенты
+"""
 
 
 class MainWindow(QMainWindow):
     current_image: Image
+
+    task2_chan1: QPushButton
+    task2_chan2: QPushButton
+    task2_chan3: QPushButton
+
+    task4_slider_brightnes: QSlider
+    task4_slider_contrast: QSlider
+
+    taskC_input: QLineEdit
 
     laba2_make_noise_percent: QSlider
     laba2_make_noise_params_input: QLineEdit
@@ -18,7 +33,7 @@ class MainWindow(QMainWindow):
     laba2_button_chan2: QRadioButton
     laba2_button_chan3: QRadioButton
 
-    laba2_linear_gradient_params: QLineEdit
+    laba2_linear_filter_input: QLineEdit
 
     def __init__(self):
         super().__init__()
@@ -26,14 +41,12 @@ class MainWindow(QMainWindow):
 
         self.current_image = Image.load("../assets/example.jpeg")
 
-
         layout = QVBoxLayout()
 
         layout.addLayout(self._make_task1_layout())
 
         layout.addLayout(self._make_noise_layout())
-
-        layout.addLayout(self._make_task2_layout())
+        layout.addLayout(self._make_linear_filter_layout())
 
         container = QWidget()
         container.setLayout(layout)
@@ -82,7 +95,12 @@ class MainWindow(QMainWindow):
 
     def _make_noise_impulslly(self):
         percent, chosen_chan, params = self._get_laba2_make_noise_all_params()
-        print("kek impuls")
+        self.current_image = make_noise_pulse(
+            self.current_image,
+            percent,
+            chosen_chan,
+            params[0],
+        )
 
     def _make_noise_additionally(self):
         percent, chosen_chan, params = self._get_laba2_make_noise_all_params()
@@ -131,7 +149,7 @@ class MainWindow(QMainWindow):
         return (
             self._get_laba2_make_noise_percent(),
             self._get_laba2_make_noise_chosen_chan(),
-            self._get_laba2_make_noise_params_as_arr()
+            self._get_laba2_make_noise_params_as_arr(),
         )
 
     def _get_laba2_make_noise_params_as_arr(self) -> list[float]:
@@ -154,33 +172,22 @@ class MainWindow(QMainWindow):
         return chan
 
     # -- task 2
-    def _make_task2_layout(self):
+    def _make_linear_filter_layout(self) -> QBoxLayout:
+        self.laba2_linear_filter_input = QLineEdit()
+
         layout = QHBoxLayout()
-
-        label = QLabel('Задание 2')
-
-        self.laba2_linear_gradient_params = QLineEdit()
-        self.laba2_linear_gradient_params.setPlaceholderText("Высота, ширина, коэфф-ты ядра")
-
-        linear_button = QPushButton('Линейный фильтр')
-        linear_button.clicked.connect(self.linear_button_clicked)
-
-        layout.addWidget(label)
-        layout.addWidget(self.laba2_linear_gradient_params)
-        layout.addWidget(linear_button)
+        layout.addWidget(QLabel("Задание 2"))
+        layout.addWidget(self.laba2_linear_filter_input)
+        layout.addWidget(self._make_show_image_button(self._linear_filter_tapped))
 
         return layout
 
-    def linear_button_clicked(self):
-        [height, width, coef] = self._get_laba2_linear_filter_params_as_arr()
-        image = linear_filter(self.current_image, Kernel(height, width, coef))
-        image.show()
-
-    def _get_laba2_linear_filter_params_as_arr(self) -> list[float]:
-        text = self.laba2_linear_gradient_params.text()
-        if not text:
-            return []
-        return [int(num) for num in text.replace(" ", "").split(",")]
+    def _linear_filter_tapped(self):
+        params = list(map(float, self.laba2_linear_filter_input.text().split(",")))
+        h, w, k = int(params[0]), int(params[1]), float(params[2])
+        kernel = [[1 / k for _ in range(w)] for _ in range(h)]
+        self.current_image = linear_filter(self.current_image, kernel)
+        self.current_image.show()
 
     # -- task 1
     def _make_task1_layout(self) -> QBoxLayout:
@@ -222,7 +229,6 @@ class MainWindow(QMainWindow):
     def hls_button_clicked(self):
         image = Image.load("../assets/example.jpeg")
         self.current_image = image.to_hls()
-
 
     def show_button_clicked(self):
         self.current_image.show()
