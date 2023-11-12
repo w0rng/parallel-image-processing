@@ -2,6 +2,7 @@ from PyQt6.QtWidgets import *
 
 from laba2.make_noise.make_noise_multiplicatively import make_noize_multiplicatively
 from laba2.make_noise.make_noise_additive import make_noise_additive
+from laba2.make_noise.make_noise_pulse import make_noise_pulse
 
 from laba2.filters.linear import linear_filter
 
@@ -82,7 +83,12 @@ class MainWindow(QMainWindow):
 
     def _make_noise_impulslly(self):
         percent, chosen_chan, params = self._get_laba2_make_noise_all_params()
-        print("kek impuls")
+        self.current_image = make_noise_pulse(
+            self.current_image,
+            percent,
+            chosen_chan,
+            params[0],
+        )
 
     def _make_noise_additionally(self):
         percent, chosen_chan, params = self._get_laba2_make_noise_all_params()
