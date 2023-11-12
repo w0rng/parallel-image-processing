@@ -1,39 +1,32 @@
-from typing import TYPE_CHECKING
+from image import Image
 from copy import deepcopy
 
-if TYPE_CHECKING:
-    from image import Image
+from laba2.utils.adjust_image_by_mode import adjust_image_by_mode
+from laba2.models.kernel import Kernel
 
 
-def linear_filter(image: "Image", kernel: list[list[float]]):
-    height, width = image.size
-
-    k_h, k_w = len(kernel), len(kernel[0])
-    pixels = image.pixels
+def linear_filter(image: Image, kernel: Kernel) -> Image:
     new_image = deepcopy(image)
 
-    for i in range(1, height - 1):
-        for j in range(1, width - 1):
-            pixel_sum = [0, 0, 0]
-            for k in range(-1 * (k_h // 2), (k_h // 2) + 1):
-                for l in range(-1 * (k_w // 2), (k_w // 2) + 1):
-                    y = (i + k) % height
-                    x = (j + l) % width
+    image_width, image_height = new_image.size
+    kernel_width, kernel_height = kernel.size
 
-                    pixel_sum[0] += (
-                        pixels[x][y][0] * kernel[k + (k_h // 2)][l + (k_w // 2)]
-                    )
-                    pixel_sum[1] += (
-                        pixels[x][y][1] * kernel[k + (k_h // 2)][l + (k_w // 2)]
-                    )
-                    pixel_sum[2] += (
-                        pixels[x][y][2] * kernel[k + (k_h // 2)][l + (k_w // 2)]
-                    )
+    pad_height = kernel_height // 2
+    pad_width = kernel_width // 2
 
-            new_image.pixels[x][y] = (
-                int(pixel_sum[0]),
-                int(pixel_sum[1]),
-                int(pixel_sum[2]),
-            )
+    for y in range(pad_height, image_height - pad_height):
+        for x in range(pad_width, image_width - pad_width):
+            roi = [row[x - pad_width:x + pad_width + 1] for row in new_image.pixels[y - pad_height:y + pad_height + 1]]
+
+            channels_sums = [0, 0, 0]
+            for i in range(kernel_height):
+                for j in range(kernel_width):
+                    channels_sums[0] += roi[i][j][0] * kernel.coefficients[i][j]
+                    channels_sums[1] += roi[i][j][1] * kernel.coefficients[i][j]
+                    channels_sums[2] += roi[i][j][2] * kernel.coefficients[i][j]
+
+            new_image.pixels[y][x] = (channels_sums[0], channels_sums[1], channels_sums[2])
+
+    adjust_image_by_mode(new_image)
 
     return new_image
