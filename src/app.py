@@ -42,6 +42,8 @@ class MainWindow(QMainWindow):
 
         layout.addLayout(self._make_task3_layout())
 
+        layout.addLayout(self._make_taskK_layout())
+
         container = QWidget()
         container.setLayout(layout)
 
@@ -211,6 +213,35 @@ class MainWindow(QMainWindow):
 
     def average_filter_button_clicked(self):
         [radius_x, radius_y] = self._get_laba2_average_filter_params_as_arr()
+        image = average_filter_recursive(self.current_image, radius_x, radius_y)
+        image.show()
+
+    # -- task k
+    def _make_taskK_layout(self):
+        layout = QHBoxLayout()
+
+        label = QLabel('Задание K')
+
+        self.laba2_average_filter_params = QLineEdit()
+        self.laba2_average_filter_params.setPlaceholderText("Размер окна")
+
+        task_k_button = QPushButton('Kuwahara filter')
+        task_k_button.clicked.connect(self.task_k_button_clicked)
+
+        layout.addWidget(label)
+        layout.addWidget(self.laba2_average_filter_params)
+        layout.addWidget(task_k_button)
+
+        return layout
+
+    def _get_laba2_task_k_params_as_arr(self) -> list[float]:
+        text = self.laba2_average_filter_params.text()
+        if not text:
+            return []
+        return [int(num) for num in text.replace(" ", "").split(",")]
+
+    def task_k_button_clicked(self):
+        [radius_x, radius_y] = self._get_laba2_task_k_params_as_arr()
         image = average_filter_recursive(self.current_image, radius_x, radius_y)
         image.show()
 
