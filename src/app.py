@@ -6,6 +6,7 @@ from laba2.make_noise.make_noise_pulse import make_noise_pulse
 from laba2.metrics.calc import calc
 
 from laba2.filters.linear import linear_filter
+from laba2.filters.average_filter import average_filter_recursive
 import time
 
 from image import Image
@@ -22,7 +23,7 @@ class MainWindow(QMainWindow):
     laba2_button_chan3: QRadioButton
 
     laba2_linear_gradient_params: QLineEdit
-    laba2_mean_filter_params: QLineEdit
+    laba2_average_filter_params: QLineEdit
 
     def __init__(self):
         super().__init__()
@@ -190,21 +191,28 @@ class MainWindow(QMainWindow):
 
         label = QLabel('Задание 3')
 
-        self.laba2_mean_filter_params = QLineEdit()
-        self.laba2_mean_filter_params.setPlaceholderText("Высота, ширина маски")
+        self.laba2_average_filter_params = QLineEdit()
+        self.laba2_average_filter_params.setPlaceholderText("radius_x, radius_y маски")
 
-        mean_filter_button = QPushButton('Среднеарифметический фильтра (рекурс.)')
-        mean_filter_button.clicked.connect(self.mean_filter_button_clicked)
+        average_filter_button = QPushButton('Среднеарифметический фильтра (рекурс.)')
+        average_filter_button.clicked.connect(self.average_filter_button_clicked)
 
         layout.addWidget(label)
-        layout.addWidget(self.laba2_mean_filter_params)
-        layout.addWidget(mean_filter_button)
+        layout.addWidget(self.laba2_average_filter_params)
+        layout.addWidget(average_filter_button)
 
         return layout
 
-    def mean_filter_button_clicked(self):
-        # some
-        return
+    def _get_laba2_average_filter_params_as_arr(self) -> list[float]:
+        text = self.laba2_average_filter_params.text()
+        if not text:
+            return []
+        return [int(num) for num in text.replace(" ", "").split(",")]
+
+    def average_filter_button_clicked(self):
+        [radius_x, radius_y] = self._get_laba2_average_filter_params_as_arr()
+        image = average_filter_recursive(self.current_image, radius_x, radius_y)
+        image.show()
 
     # -- task 1
     def _make_task1_layout(self) -> QBoxLayout:
