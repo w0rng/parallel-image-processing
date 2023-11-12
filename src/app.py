@@ -6,6 +6,7 @@ from laba2.make_noise.make_noise_pulse import make_noise_pulse
 from laba2.metrics.calc import calc
 
 from laba2.filters.linear import linear_filter
+from laba2.filters.average_filter import average_filter_recursive
 import time
 
 from image import Image
@@ -22,6 +23,7 @@ class MainWindow(QMainWindow):
     laba2_button_chan3: QRadioButton
 
     laba2_linear_gradient_params: QLineEdit
+    laba2_average_filter_params: QLineEdit
 
     def __init__(self):
         super().__init__()
@@ -37,6 +39,8 @@ class MainWindow(QMainWindow):
         layout.addLayout(self._make_noise_layout())
 
         layout.addLayout(self._make_task2_layout())
+
+        layout.addLayout(self._make_task3_layout())
 
         container = QWidget()
         container.setLayout(layout)
@@ -180,6 +184,35 @@ class MainWindow(QMainWindow):
         if not text:
             return []
         return [int(num) for num in text.replace(" ", "").split(",")]
+
+    # -- task 3
+    def _make_task3_layout(self):
+        layout = QHBoxLayout()
+
+        label = QLabel('Задание 3')
+
+        self.laba2_average_filter_params = QLineEdit()
+        self.laba2_average_filter_params.setPlaceholderText("radius_x, radius_y маски")
+
+        average_filter_button = QPushButton('Среднеарифметический фильтра (рекурс.)')
+        average_filter_button.clicked.connect(self.average_filter_button_clicked)
+
+        layout.addWidget(label)
+        layout.addWidget(self.laba2_average_filter_params)
+        layout.addWidget(average_filter_button)
+
+        return layout
+
+    def _get_laba2_average_filter_params_as_arr(self) -> list[float]:
+        text = self.laba2_average_filter_params.text()
+        if not text:
+            return []
+        return [int(num) for num in text.replace(" ", "").split(",")]
+
+    def average_filter_button_clicked(self):
+        [radius_x, radius_y] = self._get_laba2_average_filter_params_as_arr()
+        image = average_filter_recursive(self.current_image, radius_x, radius_y)
+        image.show()
 
     # -- task 1
     def _make_task1_layout(self) -> QBoxLayout:
