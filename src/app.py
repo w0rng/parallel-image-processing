@@ -3,8 +3,10 @@ from PyQt6.QtWidgets import *
 from laba2.make_noise.make_noise_multiplicatively import make_noize_multiplicatively
 from laba2.make_noise.make_noise_additive import make_noise_additive
 from laba2.make_noise.make_noise_pulse import make_noise_pulse
+from laba2.metrics.calc import calc
 
 from laba2.filters.linear import linear_filter
+import time
 
 from image import Image
 from laba2.models.kernel import Kernel
@@ -25,7 +27,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("Что-то для обработки картинок")
 
-        self.current_image = Image.load("../assets/example.jpeg")
+        self.start_image = self.current_image = Image.load("../assets/example.jpeg")
 
 
         layout = QVBoxLayout()
@@ -83,12 +85,15 @@ class MainWindow(QMainWindow):
 
     def _make_noise_impulslly(self):
         percent, chosen_chan, params = self._get_laba2_make_noise_all_params()
+        start_time = time.time()
         self.current_image = make_noise_pulse(
             self.current_image,
             percent,
             chosen_chan,
             params[0],
         )
+        end_time = time.time() - start_time
+        calc(f"impulse[{percent}, {params[0]}]", end_time, self.start_image, self.current_image)
 
     def _make_noise_additionally(self):
         percent, chosen_chan, params = self._get_laba2_make_noise_all_params()
@@ -179,7 +184,10 @@ class MainWindow(QMainWindow):
 
     def linear_button_clicked(self):
         [height, width, coef] = self._get_laba2_linear_filter_params_as_arr()
+        start = time.time()
         image = linear_filter(self.current_image, Kernel(height, width, coef))
+        end_time = time.time() - start
+        calc(f"linear[{height}x{width}x{coef}]", end_time, self.start_image, image)
         image.show()
 
     def _get_laba2_linear_filter_params_as_arr(self) -> list[float]:
@@ -219,15 +227,15 @@ class MainWindow(QMainWindow):
         return show_image_button
 
     def rgb_button_clicked(self):
-        self.current_image = Image.load("../assets/example.jpeg")
+        self.start_image = self.current_image = Image.load("../assets/example.jpeg")
 
     def yuv_button_clicked(self):
         image = Image.load("../assets/example.jpeg")
-        self.current_image = image.to_yuv()
+        self.start_image = self.current_image = image.to_yuv()
 
     def hls_button_clicked(self):
         image = Image.load("../assets/example.jpeg")
-        self.current_image = image.to_hls()
+        self.start_image = self.current_image = image.to_hls()
 
 
     def show_button_clicked(self):
