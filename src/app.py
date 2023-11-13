@@ -7,6 +7,7 @@ from laba2.metrics.calc import calc
 
 from laba2.filters.linear import linear_filter
 from laba2.filters.average_filter import average_filter_recursive
+from laba2.filters.kuwahara import kuwahara_filter
 import time
 
 from image import Image
@@ -24,6 +25,7 @@ class MainWindow(QMainWindow):
 
     laba2_linear_gradient_params: QLineEdit
     laba2_average_filter_params: QLineEdit
+    laba2_task_k_params: QLineEdit
 
     def __init__(self):
         super().__init__()
@@ -41,6 +43,8 @@ class MainWindow(QMainWindow):
         layout.addLayout(self._make_task2_layout())
 
         layout.addLayout(self._make_task3_layout())
+
+        layout.addLayout(self._make_taskK_layout())
 
         container = QWidget()
         container.setLayout(layout)
@@ -212,6 +216,35 @@ class MainWindow(QMainWindow):
     def average_filter_button_clicked(self):
         [radius_x, radius_y] = self._get_laba2_average_filter_params_as_arr()
         image = average_filter_recursive(self.current_image, radius_x, radius_y)
+        image.show()
+
+    # -- task k
+    def _make_taskK_layout(self):
+        layout = QHBoxLayout()
+
+        label = QLabel('Задание K')
+
+        self.laba2_task_k_params = QLineEdit()
+        self.laba2_task_k_params.setPlaceholderText("Высота, ширина окна")
+
+        task_k_button = QPushButton('Kuwahara filter')
+        task_k_button.clicked.connect(self.task_k_button_clicked)
+
+        layout.addWidget(label)
+        layout.addWidget(self.laba2_task_k_params)
+        layout.addWidget(task_k_button)
+
+        return layout
+
+    def _get_laba2_task_k_params_as_arr(self) -> list[float]:
+        text = self.laba2_task_k_params.text()
+        if not text:
+            return []
+        return [int(num) for num in text.replace(" ", "").split(",")]
+
+    def task_k_button_clicked(self):
+        [window_height, window_width] = self._get_laba2_task_k_params_as_arr()
+        image = kuwahara_filter(self.current_image, window_height, window_width)
         image.show()
 
     # -- task 1
