@@ -6,8 +6,8 @@ from laba2.make_noise.make_noise_pulse import make_noise_pulse
 from laba2.metrics.calc import calc
 
 from laba2.filters.linear import linear_filter
-from laba2.filters.average_filter import average_filter_recursive
 from laba2.filters.local_histogram_filter import local_histogram_filter
+from laba2.filters.average_filter import average_filter_recursive, average_filter
 from laba2.filters.kuwahara import kuwahara_filter
 import time
 
@@ -26,6 +26,7 @@ class MainWindow(QMainWindow):
 
     laba2_linear_gradient_params: QLineEdit
     laba2_average_filter_params: QLineEdit
+    laba2_task_b_params: QLineEdit
     laba2_task_k_params: QLineEdit
 
     laba2_local_histogram_params: QLineEdit
@@ -35,7 +36,6 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Что-то для обработки картинок")
 
         self.start_image = self.current_image = Image.load("../assets/example.jpeg")
-
 
         layout = QVBoxLayout()
 
@@ -48,6 +48,8 @@ class MainWindow(QMainWindow):
         layout.addLayout(self._make_task3_layout())
 
         layout.addLayout(self._make_task4_layout())
+
+        layout.addLayout(self._make_taskB_layout())
 
         layout.addLayout(self._make_taskK_layout())
 
@@ -220,7 +222,42 @@ class MainWindow(QMainWindow):
 
     def average_filter_button_clicked(self):
         [radius_x, radius_y] = self._get_laba2_average_filter_params_as_arr()
+        start = time.time()
         image = average_filter_recursive(self.current_image, radius_x, radius_y)
+        end_time = time.time() - start
+        calc(f"average_recursive[{radius_x}x{radius_y}]", end_time, self.start_image, image)
+        image.show()
+
+    # -- task b
+    def _make_taskB_layout(self):
+        layout = QHBoxLayout()
+
+        label = QLabel('Задание B')
+
+        self.laba2_task_b_params = QLineEdit()
+        self.laba2_task_b_params.setPlaceholderText("radius_x, radius_y окна")
+
+        task_b_button = QPushButton('Лин. усредняющий (сред. арифметическое)')
+        task_b_button.clicked.connect(self.task_b_button_clicked)
+
+        layout.addWidget(label)
+        layout.addWidget(self.laba2_task_b_params)
+        layout.addWidget(task_b_button)
+
+        return layout
+
+    def _get_laba2_task_b_params_as_arr(self) -> list[float]:
+        text = self.laba2_task_b_params.text()
+        if not text:
+            return []
+        return [int(num) for num in text.replace(" ", "").split(",")]
+
+    def task_b_button_clicked(self):
+        [radius_x, radius_y] = self._get_laba2_task_b_params_as_arr()
+        start = time.time()
+        image = average_filter(self.current_image, radius_x, radius_y)
+        end_time = time.time() - start
+        calc(f"average[{radius_x}x{radius_y}]", end_time, self.start_image, image)
         image.show()
 
     # -- task k
@@ -249,7 +286,10 @@ class MainWindow(QMainWindow):
 
     def task_k_button_clicked(self):
         [window_height, window_width] = self._get_laba2_task_k_params_as_arr()
+        start = time.time()
         image = kuwahara_filter(self.current_image, window_height, window_width)
+        end_time = time.time() - start
+        calc(f"kuwahara[{window_height}x{window_width}]", end_time, self.start_image, image)
         image.show()
 
     # -- task 4
