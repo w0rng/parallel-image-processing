@@ -32,6 +32,34 @@ def average_filter_recursive(image: Image, radius_x: int, radius_y: int) -> Imag
 
     return new_image
 
+def average_filter(image: Image, radius_x: int, radius_y: int) -> Image:
+    new_image = deepcopy(image)
+
+    image_width, image_height = new_image.size
+
+    for y in range(0, image_height):
+        for x in range(0, image_width):
+            total_brightness = (0, 0, 0)
+            total_pixels = 0
+
+            for i in range(-radius_x, radius_x + 1):
+                for j in range(-radius_y, radius_y + 1):
+                    nx, ny = x + i, y + j
+
+                    if 0 <= nx < image_width and 0 <= ny < image_height:
+                        pixel = new_image.pixels[ny][nx]
+                        total_brightness = (
+                            total_brightness[0] + pixel[0], total_brightness[1] + pixel[1],
+                            total_brightness[2] + pixel[2])
+                        total_pixels += 1
+
+            average_value = (total_brightness[0] / total_pixels, total_brightness[1] / total_pixels,
+                             total_brightness[2] / total_pixels) if total_pixels > 0 else (0, 0, 0)
+            new_image.pixels[y][x] = average_value
+
+    adjust_image_by_mode(new_image)
+
+    return new_image
 
 # Тут еще рекурсивная реализация
 # def average_filter_recursive(image: Image, x: int, y: int, radius_x: int, radius_y: int) -> Image:
