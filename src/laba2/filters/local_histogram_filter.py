@@ -2,6 +2,7 @@ from image import Image, pixel
 from copy import deepcopy
 import numpy as np
 from collections import defaultdict
+from utils import Pool
 
 from statistics import median_high
 
@@ -9,18 +10,33 @@ from laba2.utils.adjust_image_by_mode import adjust_image_by_mode
 
 
 def local_histogram_filter(image: Image, window_size: int) -> Image:
-    new_image: Image = deepcopy(image)
-
     width, height = image.size
     half_window = window_size // 2
 
-    for y in range(height):
-        for x in range(width):
-            new_image.pixels[y][x] = _get_median_pixel(image, x, y, half_window, width, height)
+    res = []
+    for count in range(1, 5):
+        with Pool("local_histogram_filter", count) as pool:
+            res = pool.map(
+                _tmp_row_local_histogram_filter,
+                [(image, width, height, y, half_window) for y in range(height)]
+            )
+
+    new_image = Image(pixels=res)
 
     adjust_image_by_mode(new_image)
 
     return new_image
+
+
+def _tmp_row_local_histogram_filter(args) -> [pixel]:
+    return _row_local_histogram_filter(*args)
+
+
+def _row_local_histogram_filter(image: Image, width: int, height: int, y: int, half_window: int) -> [pixel]:
+    res = []
+    for x in range(width):
+        res.append(_get_median_pixel(image, x, y, half_window, width, height))
+    return res
 
 
 def _get_median_pixel(image: Image, x: int, y: int, half_window: int, width: int, height: int) -> pixel:
