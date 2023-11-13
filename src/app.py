@@ -7,6 +7,7 @@ from laba2.metrics.calc import calc
 
 from laba2.filters.linear import linear_filter
 from laba2.filters.average_filter import average_filter_recursive
+from laba2.filters.local_histogram_filter import local_histogram_filter
 from laba2.filters.kuwahara import kuwahara_filter
 import time
 
@@ -27,6 +28,8 @@ class MainWindow(QMainWindow):
     laba2_average_filter_params: QLineEdit
     laba2_task_k_params: QLineEdit
 
+    laba2_local_histogram_params: QLineEdit
+
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Что-то для обработки картинок")
@@ -43,6 +46,8 @@ class MainWindow(QMainWindow):
         layout.addLayout(self._make_task2_layout())
 
         layout.addLayout(self._make_task3_layout())
+
+        layout.addLayout(self._make_task4_layout())
 
         layout.addLayout(self._make_taskK_layout())
 
@@ -246,6 +251,29 @@ class MainWindow(QMainWindow):
         [window_height, window_width] = self._get_laba2_task_k_params_as_arr()
         image = kuwahara_filter(self.current_image, window_height, window_width)
         image.show()
+
+    # -- task 4
+    def _make_task4_layout(self):
+        layout = QHBoxLayout()
+
+        label = QLabel('Задание 4')
+
+        self.laba2_local_histogram_params = QLineEdit()
+        self.laba2_local_histogram_params.setPlaceholderText("размер окна")
+
+        button = QPushButton('Медианный фильтр (лок. гистограмма)')
+        button.clicked.connect(self._local_histogram_filter_clicked)
+
+        layout.addWidget(label)
+        layout.addWidget(self.laba2_local_histogram_params)
+        layout.addWidget(button)
+
+        return layout
+
+    def _local_histogram_filter_clicked(self):
+        window_size = int(self.laba2_local_histogram_params.text())
+        new_image = local_histogram_filter(self.current_image, window_size)
+        new_image.show()
 
     # -- task 1
     def _make_task1_layout(self) -> QBoxLayout:
