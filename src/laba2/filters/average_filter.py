@@ -1,44 +1,72 @@
-from src.image import Image
+from src.image import Image, pixel
 from copy import deepcopy
 from src.laba2.utils.adjust_image_by_mode import adjust_image_by_mode
+from src.utils import Pool
 
 
 def average_filter_recursive(image: Image, radius_x: int, radius_y: int) -> Image:
-    new_image = deepcopy(image)
+    image_width, image_height = image.size
 
-    image_width, image_height = new_image.size
+    res = []
+    for count in range(1, 5):
+        with Pool("average_recursive_filter", count) as pool:
+            res = pool.map(
+                _tmp_row_average_recursive_filter,
+                [(image, image_height, image_width, radius_x, radius_y, y)
+                 for y in range(image_height)]
+            )
 
-    for y in range(0, image_height):
-        for x in range(0, image_width):
-            total_brightness = (0, 0, 0)
-            total_pixels = 0
-
-            for i in range(-radius_x, radius_x + 1):
-                for j in range(-radius_y, radius_y + 1):
-                    nx, ny = x + i, y + j
-
-                    if 0 <= nx < image_width and 0 <= ny < image_height:
-                        pixel = new_image.pixels[ny][nx]
-                        total_brightness = (
-                            total_brightness[0] + pixel[0], total_brightness[1] + pixel[1],
-                            total_brightness[2] + pixel[2])
-                        total_pixels += 1
-
-            average_value = (total_brightness[0] / total_pixels, total_brightness[1] / total_pixels,
-                             total_brightness[2] / total_pixels) if total_pixels > 0 else (0, 0, 0)
-            new_image.pixels[y][x] = average_value
+    new_image = Image(pixels=res)
 
     adjust_image_by_mode(new_image)
 
     return new_image
+
+
+def _tmp_row_average_recursive_filter(args) -> [pixel]:
+    return _row_average_recursive_filter(*args)
+
+
+def _row_average_recursive_filter(
+        image: Image, image_height: int, image_width: int, radius_x: int, radius_y: int, y: int
+) -> [pixel]:
+    res = []
+
+    for x in range(image_width):
+        res.append(_get_filtered_pixel(image, image_height, image_width, radius_x, radius_y, x, y))
+    return res
+
+
+def _get_filtered_pixel(
+        image: Image, image_height: int, image_width: int, radius_x: int, radius_y: int, x: int, y: int
+) -> pixel:
+    total_brightness = (0, 0, 0)
+    total_pixels = 0
+
+    for i in range(-radius_x, radius_x + 1):
+        for j in range(-radius_y, radius_y + 1):
+            nx, ny = x + i, y + j
+
+            if 0 <= nx < image_width and 0 <= ny < image_height:
+                curr_pixel = image.pixels[ny][nx]
+                total_brightness = (
+                    total_brightness[0] + curr_pixel[0], total_brightness[1] + curr_pixel[1],
+                    total_brightness[2] + curr_pixel[2])
+                total_pixels += 1
+
+    average_value = (total_brightness[0] / total_pixels, total_brightness[1] / total_pixels,
+                     total_brightness[2] / total_pixels) if total_pixels > 0 else (0, 0, 0)
+
+    return average_value
+
 
 def average_filter(image: Image, radius_x: int, radius_y: int) -> Image:
     new_image = deepcopy(image)
 
     image_width, image_height = new_image.size
 
-    for y in range(0, image_height):
-        for x in range(0, image_width):
+    for y in range(image_height):
+        for x in range(image_width):
             total_brightness = (0, 0, 0)
             total_pixels = 0
 
