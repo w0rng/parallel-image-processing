@@ -7,6 +7,7 @@ from laba2.metrics.calc import calc
 
 from laba2.filters.linear import linear_filter
 from laba2.filters.average_filter import average_filter_recursive
+from laba2.filters.kuwahara import kuwahara_filter
 import time
 
 from image import Image
@@ -241,8 +242,9 @@ class MainWindow(QMainWindow):
         return [int(num) for num in text.replace(" ", "").split(",")]
 
     def task_k_button_clicked(self):
-        [radius_x, radius_y] = self._get_laba2_task_k_params_as_arr()
-        image = average_filter_recursive(self.current_image, radius_x, radius_y)
+        # [radius_x, radius_y] = self._get_laba2_task_k_params_as_arr()
+        # image = average_filter_recursive(self.current_image, radius_x, radius_y)
+        image = kuwahara_filter(self.current_image)
         image.show()
 
     # -- task 1
