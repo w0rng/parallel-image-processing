@@ -312,7 +312,10 @@ class MainWindow(QMainWindow):
 
     def _local_histogram_filter_clicked(self):
         window_size = int(self.laba2_local_histogram_params.text())
+        start = time.time()
         new_image = local_histogram_filter(self.current_image, window_size)
+        end_time = time.time() - start
+        calc(f"local_histogram_filter[{window_size}]", end_time, self.start_image, new_image)
         new_image.show()
 
     # -- task 1
