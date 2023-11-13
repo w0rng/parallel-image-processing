@@ -222,7 +222,10 @@ class MainWindow(QMainWindow):
 
     def average_filter_button_clicked(self):
         [radius_x, radius_y] = self._get_laba2_average_filter_params_as_arr()
+        start = time.time()
         image = average_filter_recursive(self.current_image, radius_x, radius_y)
+        end_time = time.time() - start
+        calc(f"average_recursive[{radius_x}x{radius_y}]", end_time, self.start_image, image)
         image.show()
 
     # -- task b
@@ -251,7 +254,10 @@ class MainWindow(QMainWindow):
 
     def task_b_button_clicked(self):
         [radius_x, radius_y] = self._get_laba2_task_b_params_as_arr()
+        start = time.time()
         image = average_filter(self.current_image, radius_x, radius_y)
+        end_time = time.time() - start
+        calc(f"average[{radius_x}x{radius_y}]", end_time, self.start_image, image)
         image.show()
 
     # -- task k
@@ -280,7 +286,10 @@ class MainWindow(QMainWindow):
 
     def task_k_button_clicked(self):
         [window_height, window_width] = self._get_laba2_task_k_params_as_arr()
+        start = time.time()
         image = kuwahara_filter(self.current_image, window_height, window_width)
+        end_time = time.time() - start
+        calc(f"kuwahara[{window_height}x{window_width}]", end_time, self.start_image, image)
         image.show()
 
     # -- task 4
