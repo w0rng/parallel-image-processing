@@ -35,8 +35,8 @@ def variance_pixel(pixels: list[list[pixel]], average_pixel_value: pixel) -> pix
     return variance[0], variance[1], variance[2]
 
 
-def kuwahara_filter(image: Image, window_size: int = 5 ):
-    if window_size % 2 == 0:
+def kuwahara_filter(image: Image, window_height: int = 5, window_width: int = 5 ):
+    if window_height % 2 == 0 or window_width % 2 == 0:
         return
 
     new_image = deepcopy(image)
@@ -48,15 +48,16 @@ def kuwahara_filter(image: Image, window_size: int = 5 ):
         new_image = new_image.to_rgb().to_hls()
 
     image_width, image_height = new_image.size
-    half_size = window_size // 2
+    window_half_height = window_height // 2
+    window_half_width = window_width // 2
 
-    for y in range(half_size, image_height - half_size):
-        for x in range(half_size, image_width - half_size):
+    for y in range(window_half_height, image_height - window_half_height):
+        for x in range(window_half_width, image_width - window_half_width):
             subwindows = [
-                [row[x - half_size: x] for row in new_image.pixels[y - half_size: y]],
-                [row[x + 1: x + half_size + 1] for row in new_image.pixels[y - half_size: y]],
-                [row[x - half_size: x] for row in new_image.pixels[y + 1: y + half_size + 1]],
-                [row[x + 1: x + half_size + 1] for row in new_image.pixels[y + 1: y + half_size + 1]]
+                [row[x - window_half_width: x] for row in new_image.pixels[y - window_half_height: y]],
+                [row[x + 1: x + window_half_width + 1] for row in new_image.pixels[y - window_half_height: y]],
+                [row[x - window_half_width: x] for row in new_image.pixels[y + 1: y + window_half_height + 1]],
+                [row[x + 1: x + window_half_width + 1] for row in new_image.pixels[y + 1: y + window_half_height + 1]]
             ]
 
             averages = [average_pixel(subwindow) for subwindow in subwindows]
