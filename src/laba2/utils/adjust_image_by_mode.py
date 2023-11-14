@@ -3,7 +3,7 @@ from laba2.utils.clip import clip
 
 
 def adjust_image_by_mode(image: Image):
-    if image.mode == "rgb":
+    if image.mode == "rgb" or image.mode == "grayscale":
         _rbg_adjust_image(image)
     elif image.mode == "hls":
         _hls_adjust_image(image)

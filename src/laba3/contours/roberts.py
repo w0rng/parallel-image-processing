@@ -47,6 +47,6 @@ def roberts_method(image: Image, threshold: int, gain_factor: int) -> Image:
                 int((gx[2]**2 + gy[2]**2)**0.5)
             )
 
-            new_image.pixels[y][x] = (0, 0, 0) if energy[0] > 50 else (255, 255, 255)
+            new_image.pixels[y][x] = (255, 255, 255) if energy[0] > 50 else (0, 0, 0)
 
     return new_image

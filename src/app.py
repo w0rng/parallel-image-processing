@@ -2,6 +2,7 @@ from PyQt6.QtWidgets import *
 from image import Image
 
 from src.laba3.contours.roberts import roberts_method
+from src.laba3.contours.sobel import sobel_method
 
 class MainWindow(QMainWindow):
     current_image: Image
@@ -77,6 +78,7 @@ class MainWindow(QMainWindow):
         laplas_method_button = QPushButton('Метод Лапласа')
 
         roberts_method_button.clicked.connect(self._roberts_method_button_clicked)
+        sobel_method_button.clicked.connect(self._sobel_method_button_clicked)
 
         layout = QHBoxLayout()
         layout.addWidget(QLabel("Законтурить"))
@@ -95,7 +97,9 @@ class MainWindow(QMainWindow):
         image = roberts_method(self.current_image, threshold, gain_factor)
         image.show()
 
-
+    def _sobel_method_button_clicked(self):
+        image = sobel_method(self.current_image)
+        image.show()
 
 
 if __name__ == "__main__":
