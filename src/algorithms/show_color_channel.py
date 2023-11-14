@@ -59,7 +59,7 @@ def image_channel_matrix(image: "Image", chosen_channel: int) -> "Image":
         tmp_row = []
         for pixel_ in row:
             if image.mode == 'rgb':
-                tmp_row.append(hls_pixel_channel(pixel_, chosen_channel))
+                tmp_row.append(rgb_pixel_channel(pixel_, chosen_channel))
             elif image.mode == 'hls':
                 tmp_row.append(hls_pixel_channel(pixel_, chosen_channel))
             else:
