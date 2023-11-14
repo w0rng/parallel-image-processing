@@ -9,6 +9,7 @@ from laba2.filters.linear import linear_filter
 from laba2.filters.local_histogram_filter import local_histogram_filter
 from laba2.filters.average_filter import average_filter_recursive, average_filter
 from laba2.filters.kuwahara import kuwahara_filter
+from laba2.filters.jim_casabury_filter import jim_casabury_filter
 import time
 
 from image import Image
@@ -28,12 +29,13 @@ class MainWindow(QMainWindow):
     laba2_average_filter_params: QLineEdit
     laba2_task_b_params: QLineEdit
     laba2_task_k_params: QLineEdit
+    laba2_task_j_params: QLineEdit
 
     laba2_local_histogram_params: QLineEdit
 
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Что-то для обработки картинок")
+        self.setWindowTitle("Обработка изображений")
 
         self.start_image = self.current_image = Image.load("../assets/example.jpeg")
 
@@ -52,6 +54,8 @@ class MainWindow(QMainWindow):
         layout.addLayout(self._make_taskB_layout())
 
         layout.addLayout(self._make_taskK_layout())
+
+        layout.addLayout(self._make_taskJ_layout())
 
         container = QWidget()
         container.setLayout(layout)
@@ -290,6 +294,38 @@ class MainWindow(QMainWindow):
         image = kuwahara_filter(self.current_image, window_height, window_width)
         end_time = time.time() - start
         calc(f"kuwahara[{window_height}x{window_width}]", end_time, self.start_image, image)
+        image.show()
+
+    # -- task J
+    def _make_taskJ_layout(self):
+        layout = QHBoxLayout()
+
+        label = QLabel('Задание J')
+
+        self.laba2_task_j_params = QLineEdit()
+        self.laba2_task_j_params.setPlaceholderText("Высота, ширина окна, порог")
+
+        task_j_button = QPushButton('Jim Casaburi filter')
+        task_j_button.clicked.connect(self.task_j_button_clicked)
+
+        layout.addWidget(label)
+        layout.addWidget(self.laba2_task_j_params)
+        layout.addWidget(task_j_button)
+
+        return layout
+
+    def _get_laba2_task_j_params_as_arr(self) -> list[float]:
+        text = self.laba2_task_j_params.text()
+        if not text:
+            return []
+        return [int(num) for num in text.replace(" ", "").split(",")]
+
+    def task_j_button_clicked(self):
+        [window_height, window_width, threshold] = self._get_laba2_task_j_params_as_arr()
+        start = time.time()
+        image = jim_casabury_filter(self.current_image, window_width, window_height, threshold)
+        end_time = time.time() - start
+        calc(f"Jim_Casaburi[{window_height}x{window_width}, {threshold}]", end_time, self.start_image, image)
         image.show()
 
     # -- task 4
