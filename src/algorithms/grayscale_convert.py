@@ -5,8 +5,7 @@ if TYPE_CHECKING:
 
 
 def to_grayscale(current_pixel: "pixel") -> "pixel":
-    r, g, b = current_pixel
-    grayscale_value = int((r + g + b) / 3)
+    grayscale_value = int((current_pixel[0] + current_pixel[1] + current_pixel[2]) / 3)
     return grayscale_value, grayscale_value, grayscale_value
 
 

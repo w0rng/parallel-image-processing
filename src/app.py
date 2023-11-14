@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import *
 from image import Image
 
-from src.laba3.contours import roberts_method
+from src.laba3.contours.roberts import roberts_method
 
 class MainWindow(QMainWindow):
     current_image: Image
@@ -82,6 +82,7 @@ class MainWindow(QMainWindow):
         layout.addWidget(QLabel("Законтурить"))
         layout.addWidget(self.contours_threshold_value)
         layout.addWidget(self.contours_gain_factor)
+        layout.addWidget(self.contours_other_params)
         layout.addWidget(roberts_method_button)
         layout.addWidget(sobel_method_button)
         layout.addWidget(laplas_method_button)
