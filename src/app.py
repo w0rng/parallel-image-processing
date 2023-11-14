@@ -8,7 +8,7 @@ from laba2.metrics.calc import calc
 from laba2.filters.linear import linear_filter
 from laba2.filters.local_histogram_filter import local_histogram_filter
 from laba2.filters.average_filter import average_filter_recursive, average_filter
-from laba2.filters.kuwahara import kuwahara_filter
+from laba2.filters.medina import median
 import time
 
 from image import Image
@@ -33,7 +33,7 @@ class MainWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Что-то для обработки картинок")
+        self.setWindowTitle("Абрамов МПИ22-01")
 
         self.start_image = self.current_image = Image.load("../assets/example.jpeg")
 
@@ -50,8 +50,7 @@ class MainWindow(QMainWindow):
         layout.addLayout(self._make_task4_layout())
 
         layout.addLayout(self._make_taskB_layout())
-
-        layout.addLayout(self._make_taskK_layout())
+        layout.addLayout(self._make_taskE_layout())
 
         container = QWidget()
         container.setLayout(layout)
@@ -61,8 +60,11 @@ class MainWindow(QMainWindow):
     # -- task 1
     def _make_noise_layout(self) -> QBoxLayout:
         impl_button = QPushButton("Импульсный")
+        impl_button.setToolTip("Процент черных пикселей")
         add_button = QPushButton("Аддитивный")
+        add_button.setToolTip("range_start, range_end")
         mul_button = QPushButton("Мультипликативный")
+        mul_button.setToolTip("range_start, range_end")
 
         self.laba2_make_noise_percent = QSlider()
         self.laba2_make_noise_percent.setRange(0, 100)
@@ -235,10 +237,28 @@ class MainWindow(QMainWindow):
         label = QLabel('Задание B')
 
         self.laba2_task_b_params = QLineEdit()
-        self.laba2_task_b_params.setPlaceholderText("radius_x, radius_y окна")
+        self.laba2_task_b_params.setPlaceholderText("Ширина, Высота окна")
 
         task_b_button = QPushButton('Лин. усредняющий (сред. арифметическое)')
         task_b_button.clicked.connect(self.task_b_button_clicked)
+
+        layout.addWidget(label)
+        layout.addWidget(self.laba2_task_b_params)
+        layout.addWidget(task_b_button)
+
+        return layout
+
+    # -- task E
+    def _make_taskE_layout(self):
+        layout = QHBoxLayout()
+
+        label = QLabel('Задание B')
+
+        self.laba2_task_b_params = QLineEdit()
+        self.laba2_task_b_params.setPlaceholderText("Ширина, Высота окна")
+
+        task_b_button = QPushButton('Медианный фильтр')
+        task_b_button.clicked.connect(self.task_e_button_clicked)
 
         layout.addWidget(label)
         layout.addWidget(self.laba2_task_b_params)
@@ -260,37 +280,20 @@ class MainWindow(QMainWindow):
         calc(f"average[{radius_x}x{radius_y}]", end_time, self.start_image, image)
         image.show()
 
-    # -- task k
-    def _make_taskK_layout(self):
-        layout = QHBoxLayout()
 
-        label = QLabel('Задание K')
-
-        self.laba2_task_k_params = QLineEdit()
-        self.laba2_task_k_params.setPlaceholderText("Высота, ширина окна")
-
-        task_k_button = QPushButton('Kuwahara filter')
-        task_k_button.clicked.connect(self.task_k_button_clicked)
-
-        layout.addWidget(label)
-        layout.addWidget(self.laba2_task_k_params)
-        layout.addWidget(task_k_button)
-
-        return layout
+    def task_e_button_clicked(self):
+        [radius_x, radius_y] = self._get_laba2_task_b_params_as_arr()
+        start = time.time()
+        image = median(self.current_image, radius_x, radius_y)
+        end_time = time.time() - start
+        calc(f"average[{radius_x}x{radius_y}]", end_time, self.start_image, image)
+        image.show()
 
     def _get_laba2_task_k_params_as_arr(self) -> list[float]:
         text = self.laba2_task_k_params.text()
         if not text:
             return []
         return [int(num) for num in text.replace(" ", "").split(",")]
-
-    def task_k_button_clicked(self):
-        [window_height, window_width] = self._get_laba2_task_k_params_as_arr()
-        start = time.time()
-        image = kuwahara_filter(self.current_image, window_height, window_width)
-        end_time = time.time() - start
-        calc(f"kuwahara[{window_height}x{window_width}]", end_time, self.start_image, image)
-        image.show()
 
     # -- task 4
     def _make_task4_layout(self):
