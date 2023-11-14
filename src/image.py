@@ -3,6 +3,7 @@ from typing import Literal, Self, TypeAlias
 
 import PIL.Image
 
+from algorithms.grayscale_convert import rgb_to_grayscale
 from algorithms.hls_convert import hls_to_rgb, normalize, rgb_to_hls
 from algorithms.show_color_channel import image_channel_matrix
 from algorithms.yuv_convert import (change_yuv_brightnes_and_contrast,
@@ -14,7 +15,7 @@ pixel: TypeAlias = tuple[int, int, int] | tuple[float, float, float]
 @dataclass
 class Image:
     pixels: list[list[pixel]]
-    mode: Literal["rgb", "hls", "yuv"] = "rgb"
+    mode: Literal["rgb", "hls", "yuv", "grayscale"] = "rgb"
 
     @property
     def size(self) -> tuple[int, int]:
@@ -44,6 +45,9 @@ class Image:
 
     def to_yuv(self) -> Self:
         return rgb_to_yuv(self)
+
+    def to_grayscale(self) -> Self:
+        return rgb_to_grayscale(self)
 
     def change_yuv_brightnes_and_contrast(
         self, brightnes: int, contrast: float
