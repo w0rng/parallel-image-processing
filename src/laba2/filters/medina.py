@@ -15,8 +15,11 @@ def median(image: Image, radius_x: int, radius_y: int) -> Image:
         for x in range(image_width):
             total_brightness: tuple[list[int], list[int], list[int]] = ([], [], [])
 
-            for i in range(-radius_x, radius_x + 1):
-                for j in range(-radius_y, radius_y + 1):
+            radius_x_new = radius_x//2
+            radius_y_new = radius_y//2
+
+            for i in range(-radius_x_new, radius_x_new + 1):
+                for j in range(-radius_y_new, radius_y_new + 1):
                     nx = min(image_width - 1, max(0, x + i))
                     ny = min(image_height - 1, max(0, y + j))
 
