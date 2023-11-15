@@ -7,6 +7,7 @@ from src.laba3.contours.sobel import sobel_method
 from src.laba3.contours.laplace import laplace_method
 
 from src.laba3.binarization.global_binarization import global_binarization
+from src.laba3.binarization.local_binarization import local_binarization
 
 class MainWindow(QMainWindow):
     current_image: Image
@@ -17,6 +18,7 @@ class MainWindow(QMainWindow):
     contours_laplace_kernel: QLineEdit
 
     binarization_threshold_value: QLineEdit
+    binarization_block_size: QLineEdit
 
     def __init__(self):
         super().__init__()
@@ -127,7 +129,10 @@ class MainWindow(QMainWindow):
     # -- task 2
     def _make_binarization_layout(self):
         self.binarization_threshold_value = QLineEdit()
-        self.binarization_threshold_value.setPlaceholderText('Пороговое значение')
+        self.binarization_threshold_value.setPlaceholderText('Пороговое значение (глоб.)')
+
+        self.binarization_block_size = QLineEdit()
+        self.binarization_block_size.setPlaceholderText('Размер блока для расчета локального порога')
 
         global_binarization_button = QPushButton('Глобальная')
         local_binarization_button = QPushButton('Локальная')
@@ -138,6 +143,7 @@ class MainWindow(QMainWindow):
         layout = QHBoxLayout()
         layout.addWidget(QLabel("Бинаризация"))
         layout.addWidget(self.binarization_threshold_value)
+        layout.addWidget(self.binarization_block_size)
         layout.addWidget(global_binarization_button)
         layout.addWidget(local_binarization_button)
 
@@ -149,7 +155,9 @@ class MainWindow(QMainWindow):
         image.show()
 
     def _local_binarization_clicked(self):
-        return
+        block_size = int(self.binarization_block_size.text())
+        image = local_binarization(self.current_image, block_size)
+        image.show()
 
 
 if __name__ == "__main__":
