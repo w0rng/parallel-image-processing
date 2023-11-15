@@ -10,6 +10,7 @@ from laba2.filters.local_histogram_filter import local_histogram_filter
 from laba2.filters.average_filter import average_filter_recursive, average_filter
 from laba2.filters.kuwahara import kuwahara_filter
 from laba2.filters.jim_casabury_filter import jim_casabury_filter
+from laba2.filters.harmonic_mean_filter import harmonic_mean_filter
 import time
 
 from image import Image
@@ -30,6 +31,7 @@ class MainWindow(QMainWindow):
     laba2_task_b_params: QLineEdit
     laba2_task_k_params: QLineEdit
     laba2_task_j_params: QLineEdit
+    laba2_task_c_params: QLineEdit
 
     laba2_local_histogram_params: QLineEdit
 
@@ -52,6 +54,8 @@ class MainWindow(QMainWindow):
         layout.addLayout(self._make_task4_layout())
 
         layout.addLayout(self._make_taskB_layout())
+
+        layout.addLayout(self._make_taskC_layout())
 
         layout.addLayout(self._make_taskK_layout())
 
@@ -326,6 +330,38 @@ class MainWindow(QMainWindow):
         image = jim_casabury_filter(self.current_image, window_width, window_height, threshold)
         end_time = time.time() - start
         calc(f"Jim_Casaburi[{window_height}x{window_width}, {threshold}]", end_time, self.start_image, image)
+        image.show()
+
+    # -- task C
+    def _make_taskC_layout(self):
+        layout = QHBoxLayout()
+
+        label = QLabel('Задание C')
+
+        self.laba2_task_c_params = QLineEdit()
+        self.laba2_task_c_params.setPlaceholderText("Высота, ширина окна")
+
+        task_c_button = QPushButton('Средне гармонический')
+        task_c_button.clicked.connect(self.task_c_button_clicked)
+
+        layout.addWidget(label)
+        layout.addWidget(self.laba2_task_c_params)
+        layout.addWidget(task_c_button)
+
+        return layout
+
+    def _get_laba2_task_c_params_as_arr(self) -> list[float]:
+        text = self.laba2_task_c_params.text()
+        if not text:
+            return []
+        return [int(num) for num in text.replace(" ", "").split(",")]
+
+    def task_c_button_clicked(self):
+        [window_height, window_width] = self._get_laba2_task_c_params_as_arr()
+        start = time.time()
+        image = harmonic_mean_filter(self.current_image, window_width, window_height)
+        end_time = time.time() - start
+        calc(f"harmonic_mean[{window_height}x{window_width}]", end_time, self.start_image, image)
         image.show()
 
     # -- task 4
