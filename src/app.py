@@ -6,6 +6,7 @@ from src.laba3.contours.roberts import roberts_method
 from src.laba3.contours.sobel import sobel_method
 from src.laba3.contours.laplace import laplace_method
 
+from src.laba3.binarization.global_binarization import global_binarization
 
 class MainWindow(QMainWindow):
     current_image: Image
@@ -15,6 +16,8 @@ class MainWindow(QMainWindow):
     contours_balancing_factor: QLineEdit
     contours_laplace_kernel: QLineEdit
 
+    binarization_threshold_value: QLineEdit
+
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Что-то для обработки картинок")
@@ -23,7 +26,8 @@ class MainWindow(QMainWindow):
 
         layout = QVBoxLayout()
         layout.addLayout(self._make_color_models_layout())
-        layout.addLayout(self._make_laba3_contours_layout())
+        layout.addLayout(self._make_contours_layout())
+        layout.addLayout(self._make_binarization_layout())
 
         container = QWidget()
         container.setLayout(layout)
@@ -67,7 +71,7 @@ class MainWindow(QMainWindow):
         self.current_image.show()
 
     # -- task 1
-    def _make_laba3_contours_layout(self):
+    def _make_contours_layout(self):
         self.contours_threshold_value = QLineEdit()
         self.contours_threshold_value.setPlaceholderText("Пороговое значение")
 
@@ -119,6 +123,33 @@ class MainWindow(QMainWindow):
         laplace_kernel = json.loads(self.contours_laplace_kernel.text())
         image = laplace_method(self.current_image, threshold, gain_factor, laplace_kernel)
         image.show()
+
+    # -- task 2
+    def _make_binarization_layout(self):
+        self.binarization_threshold_value = QLineEdit()
+        self.binarization_threshold_value.setPlaceholderText('Пороговое значение')
+
+        global_binarization_button = QPushButton('Глобальная')
+        local_binarization_button = QPushButton('Локальная')
+
+        global_binarization_button.clicked.connect(self._global_binarization_clicked)
+        local_binarization_button.clicked.connect(self._local_binarization_clicked)
+
+        layout = QHBoxLayout()
+        layout.addWidget(QLabel("Бинаризация"))
+        layout.addWidget(self.binarization_threshold_value)
+        layout.addWidget(global_binarization_button)
+        layout.addWidget(local_binarization_button)
+
+        return layout
+
+    def _global_binarization_clicked(self):
+        threshold = int(self.binarization_threshold_value.text())
+        image = global_binarization(self.current_image, threshold)
+        image.show()
+
+    def _local_binarization_clicked(self):
+        return
 
 
 if __name__ == "__main__":
