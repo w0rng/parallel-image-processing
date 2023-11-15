@@ -252,17 +252,17 @@ class MainWindow(QMainWindow):
     def _make_taskE_layout(self):
         layout = QHBoxLayout()
 
-        label = QLabel('Задание B')
+        label = QLabel('Задание E')
 
-        self.laba2_task_b_params = QLineEdit()
-        self.laba2_task_b_params.setPlaceholderText("Ширина, Высота окна")
+        self.laba2_task_e_params = QLineEdit()
+        self.laba2_task_e_params.setPlaceholderText("Ширина, Высота окна")
 
-        task_b_button = QPushButton('Медианный фильтр')
-        task_b_button.clicked.connect(self.task_e_button_clicked)
+        task_e_button = QPushButton('Медианный фильтр')
+        task_e_button.clicked.connect(self.task_e_button_clicked)
 
         layout.addWidget(label)
-        layout.addWidget(self.laba2_task_b_params)
-        layout.addWidget(task_b_button)
+        layout.addWidget(self.laba2_task_e_params)
+        layout.addWidget(task_e_button)
 
         return layout
 
@@ -270,10 +270,17 @@ class MainWindow(QMainWindow):
         text = self.laba2_task_b_params.text()
         if not text:
             return []
-        return [int(num) for num in text.replace(" ", "").split(",")]
+        return list(map(int, map(str.strip, text.split(','))))
+
+    def _get_laba2_task_e_params_as_arr(self) -> list[float]:
+        text = self.laba2_task_e_params.text()
+        if not text:
+            return []
+        return list(map(int, map(str.strip, text.split(','))))
 
     def task_b_button_clicked(self):
-        [radius_x, radius_y] = self._get_laba2_task_b_params_as_arr()
+        params = self._get_laba2_task_b_params_as_arr()
+        radius_x, radius_y = params
         start = time.time()
         image = average_filter(self.current_image, radius_x, radius_y)
         end_time = time.time() - start
@@ -282,11 +289,11 @@ class MainWindow(QMainWindow):
 
 
     def task_e_button_clicked(self):
-        [radius_x, radius_y] = self._get_laba2_task_b_params_as_arr()
+        radius_x, radius_y = self._get_laba2_task_e_params_as_arr()
         start = time.time()
         image = median(self.current_image, radius_x, radius_y)
         end_time = time.time() - start
-        calc(f"average[{radius_x}x{radius_y}]", end_time, self.start_image, image)
+        calc(f"median[{radius_x}x{radius_y}]", end_time, self.start_image, image)
         image.show()
 
     def _get_laba2_task_k_params_as_arr(self) -> list[float]:
