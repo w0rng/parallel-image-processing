@@ -16,6 +16,7 @@ class MainWindow(QMainWindow):
     contours_gain_factor: QLineEdit
     contours_balancing_factor: QLineEdit
     contours_laplace_kernel: QLineEdit
+    contours_save_result: QCheckBox
 
     binarization_threshold_value: QLineEdit
     binarization_block_size: QLineEdit
@@ -86,6 +87,8 @@ class MainWindow(QMainWindow):
         self.contours_laplace_kernel = QLineEdit()
         self.contours_laplace_kernel.setPlaceholderText('Матрица коэффициентов (для Лапласа)')
 
+        self.contours_save_result = QCheckBox('Сохранить')
+
         roberts_method_button = QPushButton('Метод Робертса')
         sobel_method_button = QPushButton('Метод Собела')
         laplace_method_button = QPushButton('Метод Лапласа')
@@ -100,6 +103,7 @@ class MainWindow(QMainWindow):
         layout.addWidget(self.contours_gain_factor)
         layout.addWidget(self.contours_balancing_factor)
         layout.addWidget(self.contours_laplace_kernel)
+        layout.addWidget(self.contours_save_result)
         layout.addWidget(roberts_method_button)
         layout.addWidget(sobel_method_button)
         layout.addWidget(laplace_method_button)
@@ -109,21 +113,30 @@ class MainWindow(QMainWindow):
     def _roberts_method_button_clicked(self):
         threshold = float(self.contours_threshold_value.text())
         gain_factor = float(self.contours_gain_factor.text())
+        need_to_save = self.contours_save_result.isChecked()
         image = roberts_method(self.current_image, threshold, gain_factor)
+        if need_to_save:
+            self.current_image = image
         image.show()
 
     def _sobel_method_button_clicked(self):
         threshold = float(self.contours_threshold_value.text())
         gain_factor = float(self.contours_gain_factor.text())
         balancing_factor = float(self.contours_balancing_factor.text())
+        need_to_save = self.contours_save_result.isChecked()
         image = sobel_method(self.current_image, threshold, gain_factor, balancing_factor)
+        if need_to_save:
+            self.current_image = image
         image.show()
 
     def _laplace_method_button_clicked(self):
         threshold = float(self.contours_threshold_value.text())
         gain_factor = float(self.contours_gain_factor.text())
         laplace_kernel = json.loads(self.contours_laplace_kernel.text())
+        need_to_save = self.contours_save_result.isChecked()
         image = laplace_method(self.current_image, threshold, gain_factor, laplace_kernel)
+        if need_to_save:
+            self.current_image = image
         image.show()
 
     # -- task 2
