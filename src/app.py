@@ -1,15 +1,19 @@
 from PyQt6.QtWidgets import *
 from image import Image
+import json
 
 from src.laba3.contours.roberts import roberts_method
 from src.laba3.contours.sobel import sobel_method
+from src.laba3.contours.laplace import laplace_method
+
 
 class MainWindow(QMainWindow):
     current_image: Image
 
     contours_threshold_value: QLineEdit
     contours_gain_factor: QLineEdit
-    contours_other_params: QLineEdit
+    contours_balancing_factor: QLineEdit
+    contours_laplace_kernel: QLineEdit
 
     def __init__(self):
         super().__init__()
@@ -70,35 +74,50 @@ class MainWindow(QMainWindow):
         self.contours_gain_factor = QLineEdit()
         self.contours_gain_factor.setPlaceholderText("Коэффициент усиления")
 
-        self.contours_other_params = QLineEdit()
-        self.contours_other_params.setPlaceholderText("Другие параметры")
+        self.contours_balancing_factor = QLineEdit()
+        self.contours_balancing_factor.setPlaceholderText("Коэффициент балансировки (для Собела)")
+
+        self.contours_laplace_kernel = QLineEdit()
+        self.contours_laplace_kernel.setPlaceholderText('Матрица коэффициентов (для Лапласа)')
 
         roberts_method_button = QPushButton('Метод Робертса')
         sobel_method_button = QPushButton('Метод Собела')
-        laplas_method_button = QPushButton('Метод Лапласа')
+        laplace_method_button = QPushButton('Метод Лапласа')
 
         roberts_method_button.clicked.connect(self._roberts_method_button_clicked)
         sobel_method_button.clicked.connect(self._sobel_method_button_clicked)
+        laplace_method_button.clicked.connect(self._laplace_method_button_clicked)
 
         layout = QHBoxLayout()
         layout.addWidget(QLabel("Законтурить"))
         layout.addWidget(self.contours_threshold_value)
         layout.addWidget(self.contours_gain_factor)
-        layout.addWidget(self.contours_other_params)
+        layout.addWidget(self.contours_balancing_factor)
+        layout.addWidget(self.contours_laplace_kernel)
         layout.addWidget(roberts_method_button)
         layout.addWidget(sobel_method_button)
-        layout.addWidget(laplas_method_button)
+        layout.addWidget(laplace_method_button)
 
         return layout
 
     def _roberts_method_button_clicked(self):
-        threshold = int(self.contours_threshold_value.text())
-        gain_factor = int(self.contours_gain_factor.text())
+        threshold = float(self.contours_threshold_value.text())
+        gain_factor = float(self.contours_gain_factor.text())
         image = roberts_method(self.current_image, threshold, gain_factor)
         image.show()
 
     def _sobel_method_button_clicked(self):
-        image = sobel_method(self.current_image)
+        threshold = float(self.contours_threshold_value.text())
+        gain_factor = float(self.contours_gain_factor.text())
+        balancing_factor = float(self.contours_balancing_factor.text())
+        image = sobel_method(self.current_image, threshold, gain_factor, balancing_factor)
+        image.show()
+
+    def _laplace_method_button_clicked(self):
+        threshold = float(self.contours_threshold_value.text())
+        gain_factor = float(self.contours_gain_factor.text())
+        laplace_kernel = json.loads(self.contours_laplace_kernel.text())
+        image = laplace_method(self.current_image, threshold, gain_factor, laplace_kernel)
         image.show()
 
 
