@@ -9,6 +9,8 @@ from src.laba3.contours.laplace import laplace_method
 from src.laba3.binarization.global_binarization import global_binarization
 from src.laba3.binarization.local_binarization import local_binarization
 
+from laba3.morphological_processing import dilation, erosion
+
 class MainWindow(QMainWindow):
     current_image: Image
 
@@ -21,6 +23,7 @@ class MainWindow(QMainWindow):
     binarization_threshold_value: QLineEdit
     binarization_block_size: QLineEdit
 
+
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Что-то для обработки картинок")
@@ -30,7 +33,9 @@ class MainWindow(QMainWindow):
         layout = QVBoxLayout()
         layout.addLayout(self._make_color_models_layout())
         layout.addLayout(self._make_contours_layout())
-        layout.addLayout(self._make_binarization_layout())
+        layout.addLayout(self._make_global_binarization_layout())
+        layout.addLayout(self._make_local_binarization_layout())
+        layout.addLayout(self._make_morphological_processing_layout())
 
         container = QWidget()
         container.setLayout(layout)
@@ -140,37 +145,76 @@ class MainWindow(QMainWindow):
         image.show()
 
     # -- task 2
-    def _make_binarization_layout(self):
+    def _make_global_binarization_layout(self):
         self.binarization_threshold_value = QLineEdit()
         self.binarization_threshold_value.setPlaceholderText('Пороговое значение (глоб.)')
 
-        self.binarization_block_size = QLineEdit()
-        self.binarization_block_size.setPlaceholderText('Размер блока для расчета локального порога')
+        self.global_binarization_save_result = QCheckBox('Сохранить')
 
         global_binarization_button = QPushButton('Глобальная')
-        local_binarization_button = QPushButton('Локальная')
-
         global_binarization_button.clicked.connect(self._global_binarization_clicked)
-        local_binarization_button.clicked.connect(self._local_binarization_clicked)
 
         layout = QHBoxLayout()
-        layout.addWidget(QLabel("Бинаризация"))
+        layout.addWidget(QLabel("Бинаризация (глоб.)"))
         layout.addWidget(self.binarization_threshold_value)
-        layout.addWidget(self.binarization_block_size)
+        layout.addWidget(self.global_binarization_save_result)
         layout.addWidget(global_binarization_button)
-        layout.addWidget(local_binarization_button)
 
         return layout
 
     def _global_binarization_clicked(self):
         threshold = int(self.binarization_threshold_value.text())
         image = global_binarization(self.current_image, threshold)
+        if self.global_binarization_save_result.isChecked():
+            self.current_image = image
         image.show()
+
+    def _make_local_binarization_layout(self):
+        self.binarization_block_size = QLineEdit()
+        self.binarization_block_size.setPlaceholderText('Размер блока для расчета локального порога')
+
+        local_binarization_button = QPushButton('Локальная')
+        local_binarization_button.clicked.connect(self._local_binarization_clicked)
+
+        layout = QHBoxLayout()
+        layout.addWidget(QLabel("Бинаризация (лок.)"))
+        layout.addWidget(self.binarization_block_size)
+        layout.addWidget(local_binarization_button)
+
+        return layout
 
     def _local_binarization_clicked(self):
         block_size = int(self.binarization_block_size.text())
         image = local_binarization(self.current_image, block_size)
         image.show()
+
+    def _make_morphological_processing_layout(self):
+        self.morphological_processing_mask = QLineEdit()
+        self.morphological_processing_mask.setPlaceholderText('Маска. В виде [[0, 1], [1, 0]]')
+
+        dilation_button = QPushButton('Расширение')
+        dilation_button.clicked.connect(self._morphological_processing_dilation_clicked)
+
+        erosion_button = QPushButton('Сужение')
+        erosion_button.clicked.connect(self._morphological_processing_erosion_clicked)
+
+        layout = QHBoxLayout()
+        layout.addWidget(QLabel("Морфологическая обработка"))
+        layout.addWidget(self.morphological_processing_mask)
+        layout.addWidget(dilation_button)
+        layout.addWidget(erosion_button)
+
+        return layout
+
+    def _morphological_processing_dilation_clicked(self):
+        mask = json.loads(self.morphological_processing_mask.text())
+        new_image = dilation(self.current_image, mask)
+        new_image.show()
+
+    def _morphological_processing_erosion_clicked(self):
+        mask = json.loads(self.morphological_processing_mask.text())
+        new_image = erosion(self.current_image, mask)
+        new_image.show()
 
 
 if __name__ == "__main__":

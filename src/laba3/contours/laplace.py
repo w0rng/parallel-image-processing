@@ -13,6 +13,7 @@ def laplace_method(image: Image, threshold: float, gain_factor: float, laplace_k
 
     for y in range(1, image_height - 1):
         for x in range(1, image_width - 1):
+            # TODO: Сделать универсальным (не только для 3на3 ядра)
             g = (
                 image.pixels[y - 1][x - 1][0] * laplace_kernel[0][0] +
                 image.pixels[y - 1][x][0] * laplace_kernel[1][0] +
