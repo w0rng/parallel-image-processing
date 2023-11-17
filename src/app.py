@@ -11,15 +11,6 @@ from src.layouts.task1 import make_layout as make_layout_task1
 class MainWindow(QMainWindow):
     current_image: Image
 
-    contours_threshold_value: QLineEdit
-    contours_gain_factor: QLineEdit
-    contours_balancing_factor: QLineEdit
-    contours_laplace_kernel: QLineEdit
-    contours_save_result: QCheckBox
-
-    binarization_threshold_value: QLineEdit
-    binarization_block_size: QLineEdit
-
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Что-то для обработки картинок")
