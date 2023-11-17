@@ -1,9 +1,10 @@
 from collections import defaultdict
+from copy import deepcopy
 
 from PyQt6.QtWidgets import *
 
 from image import Image
-from src.algorithms.watershed_segmentation import watershed_segmentation
+from src.algorithms.watershed_segmentation import water_division
 
 
 def get_random_color():
@@ -18,12 +19,15 @@ def make_layout(window):
 
     def button_clicked():
         level = int(contours_threshold_value.text())
-        mask = watershed_segmentation(window.current_image.pixels, level*3)
+        mask = water_division(deepcopy(window.current_image.pixels), level)
         pixels = []
         colors = defaultdict(get_random_color)
         for row in mask:
             row_ = []
             for p in row:
+                if p == 0:
+                    row_.append((0, 0, 0))
+                    continue
                 row_.append(colors[p])
             pixels.append(row_)
 

@@ -1,49 +1,38 @@
-from collections import deque
+def is_valid_pixel(image, visited, row, col, level):
+    rows = len(image)
+    cols = len(image[0])
+    return (row >= 0 and row < rows and col >= 0 and col < cols and not visited[row][col] and image[row][col][
+        0] > level)
 
-import numpy as np
 
+def water_division(image, water_level):
+    rows = len(image)
+    cols = len(image[0])
+    visited = [[False for _ in range(cols)] for _ in range(rows)]
+    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+    category = 1
 
-def watershed_segmentation(image, water_level):
-    image = np.array(image)
-    height, width, _ = image.shape
+    for i in range(rows):
+        for j in range(cols):
+            if not visited[i][j]:
+                if image[i][j][0] <= water_level:
+                    visited[i][j] = True
+                    image[i][j] = 0
+                else:
+                    stack = [(i, j)]
+                    visited[i][j] = True
+                    image[i][j] = category
 
-    markers = np.zeros((height, width), dtype=int)  # Изменение инициализации на нули
-    visited = np.zeros((height, width), dtype=bool)
+                    while stack:
+                        row, col = stack.pop()
 
-    queue = deque()
+                        for dr, dc in directions:
+                            new_row, new_col = row + dr, col + dc
+                            if is_valid_pixel(image, visited, new_row, new_col, water_level):
+                                stack.append((new_row, new_col))
+                                visited[new_row][new_col] = True
+                                image[new_row][new_col] = category
 
-    def get_neighbors(y, x):
-        neighbors = [(y - 1, x), (y + 1, x), (y, x - 1), (y, x + 1)]
-        return [(ny, nx) for ny, nx in neighbors if 0 <= ny < height and 0 <= nx < width]
+                    category += 1
 
-    intensity_map = {}
-    for y in range(height):
-        for x in range(width):
-            intensity_val = sum(image[y][x])
-            if intensity_val in intensity_map:
-                intensity_map[intensity_val].append((y, x))
-            else:
-                intensity_map[intensity_val] = [(y, x)]
-
-    label = 1  # Начинаем с 1, чтобы пиксели с меткой 0 были теми, что ниже уровня воды
-    for intensity_val in sorted(intensity_map.keys()):
-        if intensity_val < water_level:
-            continue
-        intensity_pixels = intensity_map[intensity_val]
-        for pixel in intensity_pixels:
-            y, x = pixel
-            if not visited[y][x]:
-                visited[y][x] = True
-                markers[y][x] = label
-                queue.append((y, x))
-
-                while queue:
-                    current_y, current_x = queue.popleft()
-                    for ny, nx in get_neighbors(current_y, current_x):
-                        if not visited[ny][nx] and sum(image[ny][nx]) >= water_level:
-                            visited[ny][nx] = True
-                            markers[ny][nx] = label
-                            queue.append((ny, nx))
-        label += 1
-
-    return markers
+    return image
