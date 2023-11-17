@@ -24,8 +24,8 @@ def erosion(image: Image, mask: list[list[bool]]) -> Image:
 def _generic_dilation_erosion(
         image: Image,
         mask: list[list[bool]],
-        initial_value: int, # либо 0 (в случае расширения) либо 255 (в случае сужения)
-        swap_condition_func # функция с 2 аргументами (old_value, new_value), возвращает подходит ли новое значение
+        initial_value: int,  # либо 0 (в случае расширения) либо 255 (в случае сужения)
+        swap_condition_func  # функция с 2 аргументами (old_value, new_value), возвращает подходит ли новое значение
 ) -> Image:
     if image.mode != "grayscale":
         return image

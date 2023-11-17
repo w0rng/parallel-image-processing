@@ -1,7 +1,7 @@
-from src.image import Image, pixel
 from copy import deepcopy
-from src.laba2.utils.adjust_image_by_mode import adjust_image_by_mode
-from src.laba2.utils.clip import clip
+
+from src.algorithms.utils.adjust_image_by_mode import adjust_image_by_mode
+from src.image import Image
 
 
 def laplace_method(image: Image, threshold: float, gain_factor: float, laplace_kernel: list[list[int]]) -> Image:
@@ -15,17 +15,17 @@ def laplace_method(image: Image, threshold: float, gain_factor: float, laplace_k
         for x in range(1, image_width - 1):
             # TODO: Сделать универсальным (не только для 3на3 ядра)
             g = (
-                image.pixels[y - 1][x - 1][0] * laplace_kernel[0][0] +
-                image.pixels[y - 1][x][0] * laplace_kernel[1][0] +
-                image.pixels[y - 1][x + 1][0] * laplace_kernel[2][0] +
+                    image.pixels[y - 1][x - 1][0] * laplace_kernel[0][0] +
+                    image.pixels[y - 1][x][0] * laplace_kernel[1][0] +
+                    image.pixels[y - 1][x + 1][0] * laplace_kernel[2][0] +
 
-                image.pixels[y][x - 1][0] * laplace_kernel[0][1] +
-                image.pixels[y][x][0] * laplace_kernel[1][1] +
-                image.pixels[y][x + 1][0] * laplace_kernel[2][1] +
+                    image.pixels[y][x - 1][0] * laplace_kernel[0][1] +
+                    image.pixels[y][x][0] * laplace_kernel[1][1] +
+                    image.pixels[y][x + 1][0] * laplace_kernel[2][1] +
 
-                image.pixels[y + 1][x - 1][0] * laplace_kernel[0][2] +
-                image.pixels[y + 1][x][0] * laplace_kernel[1][2] +
-                image.pixels[y + 1][x + 1][0] * laplace_kernel[2][2]
+                    image.pixels[y + 1][x - 1][0] * laplace_kernel[0][2] +
+                    image.pixels[y + 1][x][0] * laplace_kernel[1][2] +
+                    image.pixels[y + 1][x + 1][0] * laplace_kernel[2][2]
             )
 
             print(g)
@@ -41,4 +41,3 @@ def laplace_method(image: Image, threshold: float, gain_factor: float, laplace_k
     adjust_image_by_mode(new_image)
 
     return new_image
-

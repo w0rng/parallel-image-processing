@@ -1,5 +1,5 @@
 from src.image import Image
-from src.laba2.utils.adjust_image_by_mode import adjust_image_by_mode
+from src.algorithms.utils.adjust_image_by_mode import adjust_image_by_mode
 from copy import deepcopy
 
 

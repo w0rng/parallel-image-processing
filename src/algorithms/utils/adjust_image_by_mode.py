@@ -1,5 +1,6 @@
 from image import Image
-from laba2.utils.clip import clip
+
+from .clip import clip
 
 
 def adjust_image_by_mode(image: Image):
