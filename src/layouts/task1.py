@@ -7,7 +7,7 @@ from src.algorithms.contours.roberts import roberts_method
 from src.algorithms.contours.sobel import sobel_method
 
 
-def roberts_method(window):
+def roberts_method_layout(window):
     contours_threshold_value = QLineEdit()
     contours_threshold_value.setPlaceholderText("Пороговое значение")
     contours_gain_factor = QLineEdit()
@@ -37,7 +37,7 @@ def roberts_method(window):
     return layout
 
 
-def sobel_method(window):
+def sobel_method_layout(window):
     contours_threshold_value = QLineEdit()
     contours_threshold_value.setPlaceholderText("Пороговое значение")
     contours_gain_factor = QLineEdit()
@@ -70,7 +70,7 @@ def sobel_method(window):
     return layout
 
 
-def laplace_method(window):
+def laplace_method_layout(window):
     contours_threshold_value = QLineEdit()
     contours_threshold_value.setPlaceholderText("Пороговое значение")
     contours_gain_factor = QLineEdit()
@@ -105,8 +105,8 @@ def laplace_method(window):
 
 def make_layout(window):
     layout = QVBoxLayout()
-    layout.addLayout(roberts_method(window))
-    layout.addLayout(sobel_method(window))
-    layout.addLayout(laplace_method(window))
+    layout.addLayout(roberts_method_layout(window))
+    layout.addLayout(sobel_method_layout(window))
+    layout.addLayout(laplace_method_layout(window))
 
     return layout

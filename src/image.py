@@ -3,6 +3,7 @@ from typing import Literal, Self, TypeAlias
 
 import PIL.Image
 
+from algorithms.grayscale_convert import rgb_to_grayscale
 
 pixel: TypeAlias = tuple[int, int, int] | tuple[float, float, float]
 
@@ -33,3 +34,6 @@ class Image:
                 row.append(image.getpixel((x, y)))
             pixels.append(row)
         return cls(pixels)
+
+    def to_grayscale(self) -> Self:
+        return rgb_to_grayscale(self)

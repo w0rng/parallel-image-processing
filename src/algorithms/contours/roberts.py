@@ -5,7 +5,7 @@ from copy import deepcopy
 
 def roberts_method(image: Image, threshold: float, gain_factor: float) -> Image:
     if image.mode != 'grayscale':
-        return image
+        image = image.to_grayscale()
 
     res_pixels = deepcopy(image.pixels)
 

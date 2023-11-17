@@ -4,7 +4,7 @@ from copy import deepcopy
 
 def global_binarization(image: Image, threshold: int) -> Image:
     if image.mode != 'grayscale':
-        return image
+        image = image.to_grayscale()
 
     image_width, image_height = image.size
     new_image = deepcopy(image)

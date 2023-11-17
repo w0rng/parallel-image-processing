@@ -6,7 +6,7 @@ from src.image import Image
 
 def laplace_method(image: Image, threshold: float, gain_factor: float, laplace_kernel: list[list[int]]) -> Image:
     if image.mode != 'grayscale':
-        return image
+        image = image.to_grayscale()
 
     image_width, image_height = image.size
     res_pixels = deepcopy(image.pixels)
