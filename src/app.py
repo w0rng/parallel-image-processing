@@ -6,6 +6,7 @@ from src.layouts.global_binarization import make_layout as make_layout_global_bi
 from src.layouts.local_binarization import make_layout as make_layout_local_binarization
 from src.layouts.morphological_processing import make_layout as make_layout_morphological_processing
 from src.layouts.task1 import make_layout as make_layout_task1
+from src.layouts.taskE import make_layout as make_layout_taskE
 
 
 class MainWindow(QMainWindow):
@@ -23,6 +24,7 @@ class MainWindow(QMainWindow):
         layout.addLayout(make_layout_global_binarization(self))
         layout.addLayout(make_layout_local_binarization(self))
         layout.addLayout(make_layout_morphological_processing(self))
+        layout.addLayout(make_layout_taskE(self))
 
         container = QWidget()
         container.setLayout(layout)
