@@ -2,9 +2,9 @@ import json
 
 from PyQt6.QtWidgets import *
 
-from src.laba3.contours.laplace import laplace_method
-from src.laba3.contours.roberts import roberts_method
-from src.laba3.contours.sobel import sobel_method
+from src.algorithms.contours.laplace import laplace_method
+from src.algorithms.contours.roberts import roberts_method
+from src.algorithms.contours.sobel import sobel_method
 
 
 def roberts_method(window):

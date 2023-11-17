@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import *
 
-from src.laba3.binarization.local_binarization import local_binarization
+from src.algorithms.binarization.local_binarization import local_binarization
 
 
 def make_layout(window):

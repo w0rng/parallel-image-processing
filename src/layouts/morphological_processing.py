@@ -2,7 +2,7 @@ import json
 
 from PyQt6.QtWidgets import *
 
-from src.laba3.morphological_processing import dilation, erosion
+from src.algorithms.morphological_processing import dilation, erosion
 
 
 def make_layout(window):

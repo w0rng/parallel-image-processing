@@ -1,7 +1,7 @@
-from src.image import Image, pixel
 from copy import deepcopy
-from src.laba2.utils.adjust_image_by_mode import adjust_image_by_mode
-from src.laba2.utils.clip import clip
+
+from src.algorithms.utils.adjust_image_by_mode import adjust_image_by_mode
+from src.image import Image
 
 
 def sobel_method(image: Image, threshold: float, gain_factor: float, balancing_factor: float) -> Image:
@@ -20,31 +20,31 @@ def sobel_method(image: Image, threshold: float, gain_factor: float, balancing_f
     for y in range(1, image_height - 1):
         for x in range(1, image_width - 1):
             gradient_x1 = (
-                image.pixels[y - 1][x - 1][0] * sobel_x1[0][0] +
-                image.pixels[y - 1][x][0] * sobel_x1[1][0] +
-                image.pixels[y - 1][x + 1][0] * sobel_x1[2][0] +
+                    image.pixels[y - 1][x - 1][0] * sobel_x1[0][0] +
+                    image.pixels[y - 1][x][0] * sobel_x1[1][0] +
+                    image.pixels[y - 1][x + 1][0] * sobel_x1[2][0] +
 
-                image.pixels[y][x - 1][0] * sobel_x1[0][1] +
-                image.pixels[y][x][0] * sobel_x1[1][1] +
-                image.pixels[y][x + 1][0] * sobel_x1[2][1] +
+                    image.pixels[y][x - 1][0] * sobel_x1[0][1] +
+                    image.pixels[y][x][0] * sobel_x1[1][1] +
+                    image.pixels[y][x + 1][0] * sobel_x1[2][1] +
 
-                image.pixels[y + 1][x - 1][0] * sobel_x1[0][2] +
-                image.pixels[y + 1][x][0] * sobel_x1[1][2] +
-                image.pixels[y + 1][x + 1][0] * sobel_x1[2][2]
+                    image.pixels[y + 1][x - 1][0] * sobel_x1[0][2] +
+                    image.pixels[y + 1][x][0] * sobel_x1[1][2] +
+                    image.pixels[y + 1][x + 1][0] * sobel_x1[2][2]
             )
 
             gradient_y1 = (
-                image.pixels[y - 1][x - 1][0] * sobel_y1[0][0] +
-                image.pixels[y - 1][x][0] * sobel_y1[1][0] +
-                image.pixels[y - 1][x + 1][0] * sobel_y1[2][0] +
+                    image.pixels[y - 1][x - 1][0] * sobel_y1[0][0] +
+                    image.pixels[y - 1][x][0] * sobel_y1[1][0] +
+                    image.pixels[y - 1][x + 1][0] * sobel_y1[2][0] +
 
-                image.pixels[y][x - 1][0] * sobel_y1[0][1] +
-                image.pixels[y][x][0] * sobel_y1[1][1] +
-                image.pixels[y][x + 1][0] * sobel_y1[2][1] +
+                    image.pixels[y][x - 1][0] * sobel_y1[0][1] +
+                    image.pixels[y][x][0] * sobel_y1[1][1] +
+                    image.pixels[y][x + 1][0] * sobel_y1[2][1] +
 
-                image.pixels[y + 1][x - 1][0] * sobel_y1[0][2] +
-                image.pixels[y + 1][x][0] * sobel_y1[1][2] +
-                image.pixels[y + 1][x + 1][0] * sobel_y1[2][2]
+                    image.pixels[y + 1][x - 1][0] * sobel_y1[0][2] +
+                    image.pixels[y + 1][x][0] * sobel_y1[1][2] +
+                    image.pixels[y + 1][x + 1][0] * sobel_y1[2][2]
             )
 
             gradient_x2 = (
@@ -75,8 +75,8 @@ def sobel_method(image: Image, threshold: float, gain_factor: float, balancing_f
                     image.pixels[y + 1][x + 1][0] * sobel_y2[2][2]
             )
 
-            g1 = (gradient_x1**2 + gradient_y1**2)**0.5
-            g2 = (gradient_x2**2 + gradient_y2**2)**0.5
+            g1 = (gradient_x1 ** 2 + gradient_y1 ** 2) ** 0.5
+            g2 = (gradient_x2 ** 2 + gradient_y2 ** 2) ** 0.5
 
             res_pixels[y][x] = (
                 gain_factor * (g1 * balancing_factor + (1 - balancing_factor) * g2),
@@ -89,4 +89,3 @@ def sobel_method(image: Image, threshold: float, gain_factor: float, balancing_f
     adjust_image_by_mode(new_image)
 
     return new_image
-
