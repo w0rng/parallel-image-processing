@@ -2,7 +2,9 @@ from copy import deepcopy
 from collections import defaultdict
 from random import randint
 
+from algorithms.utils.markers_to_image import markers_to_image
 from image import Image
+from algorithms.utils.safe_get import safe_get_from_matrix
 
 
 def diving(image: Image, level_count: int) -> Image:
@@ -23,10 +25,10 @@ def diving(image: Image, level_count: int) -> Image:
             for x in range(width):
                 p = new_image.pixels[y][x][0]
                 top_left_right_bottom_markers = list(filter(lambda v: v, [
-                    _safe_get(markers, y - 1, x),
-                    _safe_get(markers, y, x - 1),
-                    _safe_get(markers, y, x + 1),
-                    _safe_get(markers, y + 1, x),
+                    safe_get_from_matrix(markers, y - 1, x),
+                    safe_get_from_matrix(markers, y, x - 1),
+                    safe_get_from_matrix(markers, y, x + 1),
+                    safe_get_from_matrix(markers, y + 1, x),
                 ]))
 
                 if p != level:
@@ -38,33 +40,7 @@ def diving(image: Image, level_count: int) -> Image:
                 else:
                     markers[y][x] = min(top_left_right_bottom_markers)
 
-    return _colorized_image_by_markers(markers)
-
-
-def _colorized_image_by_markers(markers: list[list[int]]) -> Image:
-    rbg_by_marker = dict()
-
-    pixels = deepcopy(markers)
-
-    for y in range(len(pixels)):
-        for x in range(len(pixels[0])):
-            marker = pixels[y][x]
-            if marker not in rbg_by_marker:
-                rbg_by_marker[marker] = (
-                    randint(0, 255),
-                    randint(0, 255),
-                    randint(0, 255),
-                )
-            rbg = rbg_by_marker[marker]
-            pixels[y][x] = rbg
-
-    return Image(pixels=pixels, mode='grayscale')
-
-
-def _safe_get(matrix, y, x):
-    if not (0 <= y < len(matrix) and 0 <= x < len(matrix[0])):
-        return None
-    return matrix[y][x]
+    return markers_to_image(markers)
 
 
 def _levelize_image(image: Image, level_count: int):
