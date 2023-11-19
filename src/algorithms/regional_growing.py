@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from collections import defaultdict
 
 from image import Image
 
@@ -23,6 +24,11 @@ def regional_growing(image: Image, delta: int) -> Image:
     width, height = image.size
 
     markers = [[0] * width for _ in range(height)]
+    coordinates_by_markers_index = defaultdict(lambda: [])
+    def set_marker(y, x, value):
+        markers[y][x] = value
+        coordinates_by_markers_index[value].append((y, x))
+
     state_by_markers: dict[int, MarkerState] = dict()
 
     curr_marker = 0
@@ -45,14 +51,14 @@ def regional_growing(image: Image, delta: int) -> Image:
                 top_diff = abs(top_marker_state.average - curr_p)
 
             def optional_greater(lhs, rhs) -> bool:
-                if not lhs:
+                if lhs is None:
                     return True
                 return lhs > rhs
 
             # Если не подходит ни к одной области, то создаем новую область
             if optional_greater(left_diff, delta) and optional_greater(top_diff, delta):
                 curr_marker += 1
-                markers[y][x] = curr_marker
+                set_marker(y, x, curr_marker)
                 state_by_markers[curr_marker] = MarkerState(1, curr_p)
                 continue
 
@@ -62,41 +68,41 @@ def regional_growing(image: Image, delta: int) -> Image:
                 left_marker_state.count += 1
                 left_marker_state.summ += curr_p
                 state_by_markers[left_marker] = left_marker_state
-                markers[y][x] = left_marker
+                set_marker(y, x, left_marker)
                 continue
 
             if (top_diff is not None and top_diff <= delta) and (left_diff is None or left_diff > delta):
                 top_marker_state.count += 1
                 top_marker_state.summ += curr_p
                 state_by_markers[top_marker] = top_marker_state
-                markers[y][x] = top_marker
+                set_marker(y, x, top_marker)
                 continue
 
             # <= and <= (последний кейс)
 
             # Если области отличаются меньше чем на дельту, то сливаем их
-            if abs(left_marker_state.average - top_marker_state.average) <= delta:
+            if top_marker != left_marker and (abs(left_marker_state.average - top_marker_state.average) <= delta):
                 # left_marker меняет все маркеры top_marker на свои
-                for m_y in range(y + 1):
-                    for m_x in range(x + 1):
-                        if markers[m_y][m_x] == top_marker:
-                            markers[m_y][m_x] = left_marker
+                top_marker_points = coordinates_by_markers_index[top_marker]
+                for (m_y, m_x) in top_marker_points:
+                    # print(m_y, m_x)
+                    set_marker(m_y, m_x, left_marker)
                 left_marker_state.count += top_marker_state.count
                 left_marker_state.summ += top_marker_state.summ
                 state_by_markers[left_marker] = left_marker_state
-                markers[y][x] = left_marker
+                set_marker(y, x, left_marker)
                 continue
 
             if left_diff < top_diff:
                 left_marker_state.count += 1
                 left_marker_state.summ += curr_p
                 state_by_markers[left_marker] = left_marker_state
-                markers[y][x] = left_marker
+                set_marker(y, x, left_marker)
             else:
                 top_marker_state.count += 1
                 top_marker_state.summ += curr_p
                 state_by_markers[top_marker] = top_marker_state
-                markers[y][x] = top_marker
+                set_marker(y, x, top_marker)
 
     return markers_to_image(markers)
 
