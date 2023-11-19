@@ -9,7 +9,7 @@ def make_layout(window):
     count_levels_edit = QLineEdit()
     count_levels_edit.setPlaceholderText('Количество уровней')
 
-    button = QPushButton('Расширение')
+    button = QPushButton('Сделать')
 
     def button_clicked():
         count_levels = int(count_levels_edit.text())

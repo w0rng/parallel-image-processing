@@ -8,6 +8,7 @@ from src.algorithms.morphological_processing import dilation, erosion
 def make_layout(window):
     morphological_processing_mask = QLineEdit()
     morphological_processing_mask.setPlaceholderText('Маска. В виде [[0, 1], [1, 0]]')
+    morphological_processing_mask.setText("[[1, 1, 0],[1, 1, 1],[0, 1, 0]]")
 
     dilation_button = QPushButton('Расширение')
 
