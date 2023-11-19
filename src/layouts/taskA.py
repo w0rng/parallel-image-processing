@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import *
 
-from src.algorithms.regional_sprawl import regional_sprawl
+from src.algorithms.regional_growing import regional_growing
 
 
 def make_layout(window):
@@ -11,7 +11,7 @@ def make_layout(window):
 
     def button_clicked():
         delta = int(delta_edit.text())
-        new_image = regional_sprawl(window.current_image, delta)
+        new_image = regional_growing(window.current_image, delta)
         new_image.show()
 
     button.clicked.connect(button_clicked)
