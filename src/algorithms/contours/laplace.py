@@ -28,8 +28,6 @@ def laplace_method(image: Image, threshold: float, gain_factor: float, laplace_k
                     image.pixels[y + 1][x + 1][0] * laplace_kernel[2][2]
             )
 
-            print(g)
-
             res_pixels[y][x] = (
                 gain_factor * g,
                 gain_factor * g,
