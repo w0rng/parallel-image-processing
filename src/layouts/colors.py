@@ -6,6 +6,8 @@ from src.image import Image
 def make_layout(window) -> QBoxLayout:
     """преобразование одной цветовой модели в другую (RGB, HLS или HSV, YUV[YCbCr])"""
     rgb_button = QRadioButton("RGB")
+    hls_button = QRadioButton('HLS')
+    yuv_button = QRadioButton('YUV')
     grayscale_button = QRadioButton("Grayscale")
 
     rgb_button.setChecked(True)
@@ -15,9 +17,20 @@ def make_layout(window) -> QBoxLayout:
 
     rgb_button.clicked.connect(rgb_button_clicked)
 
-    def grayscale_button_clicked():
+    def hls_button_clicked():
         image = Image.load("assets/example.jpeg")
-        window.start_image = window.current_image = image.to_grayscale()
+        window.start_image = window.current_image = image.to_hls()
+
+    hls_button.clicked.connect(hls_button_clicked)
+
+    def yuv_button_clicked():
+        image = Image.load("assets/example.jpeg")
+        window.start_image = window.current_image = image.to_yuv()
+
+    yuv_button.clicked.connect(yuv_button_clicked)
+
+    def grayscale_button_clicked():
+        window.current_image = window.current_image.to_grayscale()
 
     grayscale_button.clicked.connect(grayscale_button_clicked)
 
@@ -27,6 +40,8 @@ def make_layout(window) -> QBoxLayout:
     color_models_layout = QHBoxLayout()
     color_models_layout.addWidget(QLabel("Выбор"))
     color_models_layout.addWidget(rgb_button)
+    color_models_layout.addWidget(hls_button)
+    color_models_layout.addWidget(yuv_button)
     color_models_layout.addWidget(grayscale_button)
 
     color_models_layout.addWidget(show_image_button)
