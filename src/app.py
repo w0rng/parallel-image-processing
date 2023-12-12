@@ -2,6 +2,7 @@ from PyQt6.QtWidgets import *
 
 from image import Image
 from src.layouts.colors import make_layout as make_layout_colors
+from src.layouts.texture_map import make_layout as make_layout_texture_map
 
 
 class MainWindow(QMainWindow):
@@ -15,6 +16,7 @@ class MainWindow(QMainWindow):
 
         layout = QVBoxLayout()
         layout.addLayout(make_layout_colors(self))
+        layout.addLayout(make_layout_texture_map(self))
 
         container = QWidget()
         container.setLayout(layout)
