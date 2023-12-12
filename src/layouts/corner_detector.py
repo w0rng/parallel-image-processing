@@ -1,10 +1,11 @@
 from PyQt6.QtWidgets import *
 
-from src.algorithms.corner_detectors import harris_corner_detector
+from src.algorithms.corner_detectors import harris_corner_detector, fast_corner_detector
 
 
 def make_layout(window) -> QBoxLayout:
     harris_button = QPushButton("Харрис")
+    fast_button = QPushButton('FAST')
 
     def harris_button_clicked():
         image = harris_corner_detector(window.current_image)
@@ -12,11 +13,15 @@ def make_layout(window) -> QBoxLayout:
 
     harris_button.clicked.connect(harris_button_clicked)
 
-    harris_layout = QHBoxLayout()
-    harris_layout.addWidget(harris_button)
+    def fast_button_clicked():
+        image = fast_corner_detector(window.current_image)
+        image.show()
+
+    fast_button.clicked.connect(fast_button_clicked)
 
     layout = QHBoxLayout()
     layout.addWidget(QLabel('Corner detector'))
-    layout.addLayout(harris_layout)
+    layout.addWidget(harris_button)
+    layout.addWidget(fast_button)
 
     return layout
