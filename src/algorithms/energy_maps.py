@@ -1,6 +1,18 @@
 from src.image import Image
+from src.utils import Pool
 import matplotlib.pyplot as plt
 import numpy as np
+
+'''
+    Оставил реализацию на np, т.к. и с ним получилось норм распараллелить
+    
+    1;56,975768089294434
+    2;29,430114030838013
+    3;21,12345314025879
+    4;17,068299055099487
+    
+    А если еще и цифры подшаманить, вообще красота будет
+'''
 
 
 def generate_laws_masks():
@@ -20,6 +32,10 @@ def generate_laws_masks():
     return laws_masks
 
 
+def _tmp_row_convolution (args) -> np.ndarray:
+    return convolution(*args)
+
+
 def convolution(image: np.ndarray, kernel: np.ndarray):
     kernel = np.flipud(np.fliplr(kernel))
     output = np.zeros_like(image, dtype=float)
@@ -32,14 +48,23 @@ def convolution(image: np.ndarray, kernel: np.ndarray):
     return output
 
 
-def laws_energy_map(image: Image) -> Image:
+def laws_energy_map(image: Image):
     new_image = np.array([[float(pixel[0]) / 255 for pixel in row] for row in image.pixels], dtype=float)
     laws_masks = generate_laws_masks()
     energy_map = np.array([[0 for _ in row] for row in image.pixels], dtype=float)
 
-    for mask in laws_masks:
-        filtered_image = convolution(new_image, mask)
-        energy_map += filtered_image**2
+    res = []
+    for count in range(1, 5):
+        with Pool("energy_maps", count) as pool:
+            res = pool.map(
+                _tmp_row_convolution,
+                [(new_image, mask)
+                 for mask in laws_masks]
+            )
+
+
+    for image in res:
+        energy_map += image**2
 
     plt.imshow(energy_map, cmap='hot')
     plt.show()
