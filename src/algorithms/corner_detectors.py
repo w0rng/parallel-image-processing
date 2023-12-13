@@ -2,7 +2,8 @@ import numpy as np
 from scipy.ndimage import convolve
 from copy import deepcopy
 
-from src.image import Image
+from src.image import Image, pixel
+from src.utils import Pool
 
 
 def harris_corner_detector(image: Image, window_size=3, k=0.04, threshold=0.05):
@@ -39,6 +40,11 @@ def harris_corner_detector(image: Image, window_size=3, k=0.04, threshold=0.05):
     return new_image
 
 
+'''
+    FAST не особо хорошо распараллелся, но можно цифры подшаманить
+'''
+
+
 def fast_is_corner(image: Image, x: int, y: int, threshold: int):
     pixel_value = image.pixels[y][x][0]
     threshold_values = [pixel_value - threshold, pixel_value + threshold]
@@ -57,16 +63,35 @@ def fast_is_corner(image: Image, x: int, y: int, threshold: int):
     return consecutive_brighter >= 9 or consecutive_darker >= 9
 
 
+def _tmp_row_fast_corner(args) -> list[pixel]:
+    return _row_fast_corner(*args)
+
+
+def _row_fast_corner(image, y, threshold) -> list[pixel]:
+    width, height = image.size
+
+    res = []
+    for x in range(3, width - 3):
+        res.append((255, 0, 0) if fast_is_corner(image, x, y, threshold) else image.pixels[y][x])
+
+    return res
+
+
 def fast_corner_detector(image: Image, threshold=20) -> Image:
     if image.mode != 'grayscale':
         image.to_grayscale()
 
-    new_image = deepcopy(image)
-    width, height = new_image.size
+    width, height = image.size
 
-    for y in range(3, height - 3):
-        for x in range(3, width - 3):
-            if fast_is_corner(new_image, x, y, threshold):
-                new_image.pixels[y][x] = (255, 0, 0)
+    res = []
+    for count in range(1, 8):
+        with Pool("fast_corner_detector", count) as pool:
+            res = pool.map(
+                _tmp_row_fast_corner,
+                [(image, y, threshold)
+                 for y in range(3, height - 3)]
+            )
+
+    new_image = Image(pixels=res)
 
     return new_image
