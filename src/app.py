@@ -5,6 +5,7 @@ from src.layouts.colors import make_layout as make_layout_colors
 from src.layouts.texture_map import make_layout as make_layout_texture_map
 from src.layouts.histogram import make_layout as make_layout_histogram
 from src.layouts.corner_detector import make_layout as make_layout_corner_detector
+from src.layouts.hough_transform_linear import make_layout as make_hough_transform_linear
 
 
 class MainWindow(QMainWindow):
@@ -21,6 +22,7 @@ class MainWindow(QMainWindow):
         layout.addLayout(make_layout_texture_map(self))
         layout.addLayout(make_layout_histogram(self))
         layout.addLayout(make_layout_corner_detector(self))
+        layout.addLayout(make_hough_transform_linear(self))
 
         container = QWidget()
         container.setLayout(layout)
