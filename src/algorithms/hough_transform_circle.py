@@ -3,7 +3,6 @@ from collections import defaultdict
 from time import time
 
 import numpy as np
-from joblib import Parallel, delayed
 
 from algorithms.contours.sobel import sobel_method
 from image import Image
@@ -63,7 +62,3 @@ def hough_transform_circle(image: Image, count: int):
     result = get_top_circles(circles, count)
     img = draw_circles(image.pixels, result)
     return Image(pixels=img)
-
-
-def run_hough_transform_with_joblib(image, count):
-    return Parallel(n_jobs=-1)(delayed(hough_transform_circle)(image, count) for _ in range(1))[0]
