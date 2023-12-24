@@ -1,4 +1,6 @@
 import math
+from collections import defaultdict
+from copy import deepcopy
 
 from algorithms.contours.sobel import sobel_method
 from image import Image
@@ -7,31 +9,23 @@ from image import Image
 def hough_transform(image):
     height = len(image)
     width = len(image[0])
-    max_rho = int(math.sqrt(height ** 2 + width ** 2))  # Максимальное значение ρ - диагональ изображения
     theta_max = 180  # Максимальное значение угла theta (в градусах)
 
     # Инициализация массива аккумуляторов
-    accumulator = [[0 for _ in range(theta_max)] for _ in range(2 * max_rho)]
+    accumulator = defaultdict(lambda: 0)
+    coss = {theta: math.cos(math.radians(theta)) for theta in range(theta_max)}
+    sins = {theta: math.sin(math.radians(theta)) for theta in range(theta_max)}
 
     for y in range(height):
         for x in range(width):
-            if sum(image[y][x]) == 255 * 3:  # Если текущий пиксель не является фоном (не черный)
-                for theta in range(theta_max):
-                    # Преобразование координат изображения в параметры прямой (ρ, theta)
-                    rho = int(x * math.cos(math.radians(theta)) + y * math.sin(math.radians(theta)))
-                    accumulator[rho + max_rho][theta] += 1  # Увеличиваем значение в аккумуляторе
+            if image[y][x][0] != 255:  # Если текущий пиксель не является фоном (не черный)
+                continue
+            for theta in range(theta_max):
+                # Преобразование координат изображения в параметры прямой (ρ, theta)
+                rho = int(x * coss[theta] + y * sins[theta])
+                accumulator[(rho, theta)] += 1  # Увеличиваем значение в аккумуляторе
 
-    return accumulator, max_rho, theta_max
-
-
-def detect_lines(accumulator, max_rho, theta_max, threshold=100):
-    lines = []
-    for rho in range(len(accumulator)):
-        for theta in range(theta_max):
-            if accumulator[rho][theta] > threshold:
-                rho_val = rho - max_rho
-                lines.append((rho_val, theta))
-    return lines
+    return accumulator
 
 
 def draw_detected_lines(image, detected_lines):
@@ -58,25 +52,22 @@ def draw_detected_lines(image, detected_lines):
 
 def get_top_n_max(matrix, n):
     # Преобразование матрицы в одномерный список
-    flattened_matrix = [num for row in matrix for num in row]
-
-    # Сортировка списка в порядке убывания
-    flattened_matrix.sort(reverse=True)
-
-    top_10_values = flattened_matrix[:n]
-
-    return top_10_values
+    top_value = sorted(matrix.values(), reverse=True)[:n][-1]
+    result = []
+    for key, value in matrix.items():
+        if value >= top_value:
+            result.append(key)
+    return result
 
 
 def hough_transform_linear(image: Image, count_lines: int = 10) -> Image:
+    image = deepcopy(image)
     contur = sobel_method(image, 150, 3, 10)
 
-    accumulator, max_rho, theta_max = hough_transform(contur.pixels)
-    threshold = get_top_n_max(accumulator, count_lines)[-1]
+    accumulator = hough_transform(contur.pixels)
+    lines = get_top_n_max(accumulator, count_lines)
 
-    detected_lines = detect_lines(accumulator, max_rho, theta_max, threshold=threshold)
-
-    pixels = draw_detected_lines(image.pixels, detected_lines)
+    pixels = draw_detected_lines(image.pixels, lines)
     return Image(pixels=pixels)
 
 
