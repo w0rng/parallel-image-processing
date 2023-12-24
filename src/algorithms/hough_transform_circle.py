@@ -6,7 +6,7 @@ from algorithms.contours.sobel import sobel_method
 from image import Image
 
 
-def hough_circle(image_matrix, min_radius, max_radius, threshold):
+def hough_circle(image_matrix, min_radius, max_radius):
     height = len(image_matrix)
     width = len(image_matrix[0])
 
@@ -29,12 +29,11 @@ def hough_circle(image_matrix, min_radius, max_radius, threshold):
                             accumulator[round(b)][round(a)][r - min_radius] += 1
 
     # Поиск окружностей с числом голосов выше порога
-    circles = []
+    circles = {}
     for y in range(height):
         for x in range(width):
             for r in range(max_radius - min_radius + 1):
-                if accumulator[y][x][r] > threshold:
-                    circles.append((x, y, r + min_radius))
+                circles[(x, y, r + min_radius)] = accumulator[y][x][r]
 
     return circles
 
@@ -44,12 +43,22 @@ def draw_circles(image, circles):
         for angle in range(0, 360):
             x1 = int(x + r * np.cos(angle))
             y1 = int(y + r * np.sin(angle))
-            image[y1][x1] = (255, 0, 0)
+            if 0 <= x1 < len(image[0]) and 0 <= y1 < len(image):
+                image[y1][x1] = (255, 0, 0)
     return image
 
+def get_top_circles(circles, count):
+    top_value = sorted(circles.values(), reverse=True)[:count][-1]
+    result = []
+    for key, value in circles.items():
+        if value >= top_value:
+            result.append(key)
+    return result
 
-def hough_transform_circle(image: Image, threshold: int):
+
+def hough_transform_circle(image: Image, count: int):
     contur = sobel_method(image, 150, 3, 10)
-    result = hough_circle(contur.pixels, min(image.size) // 10, min(image.size) // 2, threshold)
+    circles = hough_circle(contur.pixels, min(image.size) // 10, min(image.size) // 2)
+    result = get_top_circles(circles, count)
     img = draw_circles(image.pixels, result)
     return Image(pixels=img)
