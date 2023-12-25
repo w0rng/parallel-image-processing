@@ -77,7 +77,7 @@ def laplace_method_layout(window):
     contours_gain_factor.setPlaceholderText("Коэффициент усиления")
     contours_laplace_kernel = QLineEdit()
     contours_laplace_kernel.setPlaceholderText('Матрица коэффициентов')
-    contours_laplace_kernel.setText('[[0, 1, 0], [1, 4, 1], [0, 1, 0]]')
+    contours_laplace_kernel.setText("[[0, -1, 0],[-1, 4, -1],[0, -1, 0]]")
     contours_save_result = QCheckBox('Сохранить')
 
     def button_clicked():

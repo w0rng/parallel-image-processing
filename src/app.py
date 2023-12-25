@@ -4,6 +4,7 @@ from image import Image
 from src.layouts.colors import make_layout as make_layout_colors
 from src.layouts.global_binarization import make_layout as make_layout_global_binarization
 from src.layouts.local_binarization import make_layout as make_layout_local_binarization
+from src.layouts.morphological_processing import make_layout as make_layout_morphological_processing
 from src.layouts.task1 import make_layout as make_layout_task1
 from src.layouts.task_b import make_layout as make_layout_task_b
 from src.layouts.task_h import make_layout as make_layout_task_h
@@ -23,6 +24,7 @@ class MainWindow(QMainWindow):
         layout.addLayout(make_layout_task1(self))
         layout.addLayout(make_layout_global_binarization(self))
         layout.addLayout(make_layout_local_binarization(self))
+        layout.addLayout(make_layout_morphological_processing(self))
         layout.addLayout(make_layout_task_h(self))
         layout.addLayout(make_layout_task_b(self))
 

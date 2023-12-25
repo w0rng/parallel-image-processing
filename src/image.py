@@ -11,7 +11,7 @@ pixel: TypeAlias = tuple[int, int, int] | tuple[float, float, float]
 @dataclass
 class Image:
     pixels: list[list[pixel]]
-    mode: Literal["rgb", "hls", "yuv"] = "rgb"
+    mode: Literal["rgb", "hls", "yuv", "grayscale"] = "rgb"
 
     @property
     def size(self) -> tuple[int, int]:
