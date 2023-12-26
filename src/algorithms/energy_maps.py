@@ -1,70 +1,72 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.ndimage import convolve
+
 from src.image import Image
 from src.utils import Pool
-import matplotlib.pyplot as plt
-import numpy as np
-
-'''
-    Оставил реализацию на np, т.к. и с ним получилось норм распараллелить
-    
-    1;56,975768089294434
-    2;29,430114030838013
-    3;21,12345314025879
-    4;17,068299055099487
-    
-    А если еще и цифры подшаманить, вообще красота будет
-'''
 
 
 def generate_laws_masks():
-    masks = np.array([
-        [1, 4, 6, 4, 1],
-        [-1, -2, 0, 2, 1],
-        [-1, 0, 2, 0, -1],
-        [-1, 2, 0, -2, 1],
-        [1, -4, 6, -4, 1]
-    ])
+    L5 = np.array([1, 4, 6, 4, 1])
+    E5 = np.array([-1, -2, 0, 2, 1])
+    S5 = np.array([-1, 0, 2, 0, -1])
+    W5 = np.array([1, -4, 6, -4, 1])
 
-    laws_masks = []
-    for i in range(5):
-        for j in range(5):
-            laws_masks.append(np.outer(masks[i], masks[j]))
+    L5E5 = np.outer(L5, E5)
+    E5L5 = np.outer(E5, L5)
+    L5S5 = np.outer(L5, S5)
+    S5L5 = np.outer(S5, L5)
+    E5S5 = np.outer(E5, S5)
+    S5E5 = np.outer(S5, E5)
+    E5W5 = np.outer(E5, W5)
+    W5E5 = np.outer(W5, E5)
+    S5W5 = np.outer(S5, W5)
+    W5S5 = np.outer(W5, S5)
+    W5W5 = np.outer(W5, W5)
+    S5S5 = np.outer(S5, S5)
 
-    return laws_masks
+    masks = [L5E5, E5L5, L5S5, S5L5, E5S5, S5E5, E5W5, W5E5, S5W5, W5S5, W5W5, S5S5]
+
+    return masks
+
+
+def compute_energy_map(image: np.ndarray, mask):
+    convolved_image = convolve(image, mask)
+    energy_map = np.abs(convolved_image)
+
+    return energy_map
 
 
 def _tmp_row_convolution (args) -> np.ndarray:
-    return convolution(*args)
+    return compute_energy_map(*args)
 
 
-def convolution(image: np.ndarray, kernel: np.ndarray):
-    kernel = np.flipud(np.fliplr(kernel))
-    output = np.zeros_like(image, dtype=float)
+def generate_laws_energy_maps(image: Image):
+    if image.mode != 'grayscale':
+        image.to_grayscale()
 
-    # Iterate over the image with the kernel
-    for i in range(2, image.shape[0] - 2):
-        for j in range(2, image.shape[1] - 2):
-            output[i, j] = np.sum(image[i - 2:i + 3, j - 2:j + 3] * kernel)
+    masks = generate_laws_masks()
+    new_image = np.array([[pixel[0] for pixel in row] for row in image.pixels])
 
-    return output
+    energy_maps = []
 
-
-def laws_energy_map(image: Image):
-    new_image = np.array([[float(pixel[0]) / 255 for pixel in row] for row in image.pixels], dtype=float)
-    laws_masks = generate_laws_masks()
-    energy_map = np.array([[0 for _ in row] for row in image.pixels], dtype=float)
-
-    res = []
     for count in range(1, 5):
         with Pool("energy_maps", count) as pool:
-            res = pool.map(
+            energy_maps = pool.map(
                 _tmp_row_convolution,
                 [(new_image, mask)
-                 for mask in laws_masks]
+                 for mask in masks]
             )
 
+    return energy_maps
 
-    for image in res:
-        energy_map += image**2
 
-    plt.imshow(energy_map, cmap='hot')
+def display_energy_maps(energy_maps):
+    fig, axes = plt.subplots(3, 4, figsize=(15, 10))
+    fig.suptitle("Laws' Energy Maps")
+
+    for i, ax in enumerate(axes.flatten()):
+        ax.imshow(energy_maps[i], cmap='gray')
+        ax.set_title(f'Map {i + 1}')
+
     plt.show()

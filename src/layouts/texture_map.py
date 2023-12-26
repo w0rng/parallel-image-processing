@@ -1,12 +1,13 @@
 from PyQt6.QtWidgets import *
-from src.algorithms.energy_maps import laws_energy_map
+from src.algorithms.energy_maps import display_energy_maps, generate_laws_energy_maps
 
 
 def make_layout(window) -> QBoxLayout:
     make_button = QPushButton("Сделать")
 
     def make_button_clicked():
-        laws_energy_map(window.current_image)
+        energy_maps = generate_laws_energy_maps(window.current_image)
+        display_energy_maps(energy_maps)
 
     make_button.clicked.connect(make_button_clicked)
 
