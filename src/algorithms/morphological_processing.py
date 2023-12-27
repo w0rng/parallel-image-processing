@@ -8,7 +8,8 @@ def dilation(image: Image, mask: list[list[bool]]) -> Image:
         image,
         mask,
         initial_value=0,
-        swap_condition_func=lambda old_value, new_value: new_value > old_value
+        swap_condition_func=lambda old_value, new_value: new_value > old_value,
+        is_fast=False,
     )
 
 
@@ -17,7 +18,28 @@ def erosion(image: Image, mask: list[list[bool]]) -> Image:
         image,
         mask,
         initial_value=255,
-        swap_condition_func=lambda old_value, new_value: new_value < old_value
+        swap_condition_func=lambda old_value, new_value: new_value < old_value,
+        is_fast=False
+    )
+
+
+def fast_dilation(image: Image, mask: list[list[bool]]) -> Image:
+    return _generic_dilation_erosion(
+        image,
+        mask,
+        initial_value=0,
+        swap_condition_func=lambda old_value, new_value: new_value > old_value,
+        is_fast=True,
+    )
+
+
+def fast_erosion(image: Image, mask: list[list[bool]]) -> Image:
+    return _generic_dilation_erosion(
+        image,
+        mask,
+        initial_value=255,
+        swap_condition_func=lambda old_value, new_value: new_value < old_value,
+        is_fast=True
     )
 
 
@@ -25,7 +47,8 @@ def _generic_dilation_erosion(
         image: Image,
         mask: list[list[bool]],
         initial_value: int,  # либо 0 (в случае расширения) либо 255 (в случае сужения)
-        swap_condition_func  # функция с 2 аргументами (old_value, new_value), возвращает подходит ли новое значение
+        swap_condition_func,  # функция с 2 аргументами (old_value, new_value), возвращает подходит ли новое значение
+        is_fast: bool,
 ) -> Image:
     if image.mode != "grayscale":
         return image
@@ -62,7 +85,8 @@ def _generic_dilation_erosion(
                             # если убрать эту строку (преждевременный выход из 2 циклов)
                             # то это уже будет "классический вариант"
                             # а сейчас это "ускоренный вариант"!!!!!
-                            return value
+                            if is_fast:
+                                return value
                 return value
 
             res_value = find_value()
