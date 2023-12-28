@@ -6,8 +6,7 @@ def make_layout(window) -> QBoxLayout:
     make_button = QPushButton("Сделать")
 
     def make_button_clicked():
-        image = calculate_texture_features(window.current_image)
-        image.show()
+        calculate_texture_features(window.current_image)
 
     make_button.clicked.connect(make_button_clicked)
 
