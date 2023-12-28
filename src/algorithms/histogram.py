@@ -1,29 +1,40 @@
-import numpy as np
-import matplotlib.pyplot as plt
 from src.image import Image
+from src.algorithms.utils.adjust_image_by_mode import adjust_image_by_mode
 
 
-def calculate_histogram(image: np.ndarray):
-    hist, bin_edges = np.histogram(image.flatten(), bins=256, range=(0, 1))
-    return hist, bin_edges
-
-
-def calculate_texture_features(image: Image):
+def calculate_texture_features(image: Image, window_size=3):
     if image.mode != 'grayscale':
         image.to_grayscale()
 
-    new_image = np.array([[pixel[0] for pixel in row] for row in image.pixels])
-    new_image = (new_image - np.min(new_image)) / (np.max(new_image) - np.min(new_image))
-    hist, bin_edges = calculate_histogram(new_image)
+    width, height = image.size
 
-    mean = np.mean(hist)
-    variance = np.var(hist)
-    skewness = np.mean(((hist - mean) / np.std(hist)) ** 3)
-    kurtosis = np.mean(((hist - mean) / np.std(hist)) ** 4) - 3
+    texture_feature_map = [[0] * width for _ in range(height)]
 
-    plt.hist(hist)
-    plt.title('Histogram')
-    plt.text(10, 10, f'variance - {variance}\nskewness - {skewness}\nkurtosis - {kurtosis}')
-    plt.show()
+    # Iterate over the image
+    for y in range(height):
+        for x in range(width):
+            # Calculate local neighborhood histogram
+            histogram = [0] * 256
+            for i in range(max(0, y - window_size // 2), min(height, y + window_size // 2 + 1)):
+                for j in range(max(0, x - window_size // 2), min(width, x + window_size // 2 + 1)):
+                    pixel_value = image.pixels[i][j][0]
+                    histogram[pixel_value] += 1
+
+            # Calculate probability histogram
+            probability_histogram = [count / float(window_size ** 2) for count in histogram]
+
+            # Calculate average brightness
+            average_brightness = sum(value * prob for value, prob in enumerate(probability_histogram))
+
+            # Calculate texture features (you can add more features based on your requirements)
+            contrast = sum(((i - average_brightness) ** 2) * prob for i, prob in enumerate(probability_histogram))
+
+            # Update texture feature map with the calculated feature
+            texture_feature_map[y][x] = contrast
+
+    new_image = Image(pixels=[[(value, value, value) for value in row] for row in texture_feature_map], mode='grayscale')
+    adjust_image_by_mode(new_image)
+
+    return new_image
 
 
