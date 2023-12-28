@@ -25,7 +25,10 @@ def generate_laws_masks():
     W5W5 = np.outer(W5, W5)
     S5S5 = np.outer(S5, S5)
 
-    masks = [L5E5, E5L5, L5S5, S5L5, E5S5, S5E5, E5W5, W5E5, S5W5, W5S5, W5W5, S5S5]
+    L5L5 = np.outer(L5, L5)
+    E5E5 = np.outer(E5, E5)
+
+    masks = [L5E5, E5L5, L5S5, S5L5, E5S5, S5E5, E5W5, W5E5, S5W5, W5S5, W5W5, S5S5, E5E5, S5S5, W5W5]
 
     return masks
 
@@ -50,7 +53,7 @@ def generate_laws_energy_maps(image: Image):
 
     energy_maps = []
 
-    for count in range(1, 5):
+    for count in range(4, 5):
         with Pool("energy_maps", count) as pool:
             energy_maps = pool.map(
                 _tmp_row_convolution,
@@ -62,7 +65,7 @@ def generate_laws_energy_maps(image: Image):
 
 
 def display_energy_maps(energy_maps):
-    fig, axes = plt.subplots(3, 4, figsize=(15, 10))
+    fig, axes = plt.subplots(3, 5, figsize=(15, 10))
     fig.suptitle("Laws' Energy Maps")
 
     for i, ax in enumerate(axes.flatten()):
